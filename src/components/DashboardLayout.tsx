@@ -177,7 +177,7 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
 
       {/* Main Content */}
       <main
-        className={`flex-1 transition-all duration-300 w-full ${isDesktop ? '' : ''}`}
+        className="flex-1 transition-all duration-300 w-full"
         style={{ marginLeft: isDesktop ? (sidebarOpen ? 256 : 80) : 0 }}
       >
         {/* Top Header */}
