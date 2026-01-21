@@ -188,7 +188,7 @@ export default function Onboarding() {
               <div>
                 <label className="block text-dark-300 mb-2">Website URL</label>
                 <div className="relative">
-                  <Globe className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                  <Globe className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
                   <input
                     type="url"
                     value={formData.websiteUrl}
@@ -202,7 +202,7 @@ export default function Onboarding() {
               <div>
                 <label className="block text-dark-300 mb-2">Company Name</label>
                 <div className="relative">
-                  <Building2 className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                  <Building2 className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
                   <input
                     type="text"
                     value={formData.companyName}
@@ -216,7 +216,7 @@ export default function Onboarding() {
               <div>
                 <label className="block text-dark-300 mb-2">Business Type</label>
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
                   <input
                     type="text"
                     value={businessSearch}
@@ -440,7 +440,7 @@ export default function Onboarding() {
               <div>
                 <label className="block text-dark-300 mb-2">Search for a location</label>
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
                   <input
                     type="text"
                     value={locationSearch}

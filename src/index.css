@@ -116,6 +116,19 @@ body {
          focus:ring-primary-500/20 transition-all duration-300;
 }
 
+/* Input with icon - ensure text doesn't overlap with icons */
+.input-icon {
+  @apply absolute top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none z-10;
+}
+
+.input-icon-left {
+  @apply left-4;
+}
+
+.input-icon-right {
+  @apply right-4;
+}
+
 /* Stat Card */
 .stat-card {
   @apply p-6 rounded-xl glass card-hover;

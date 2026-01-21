@@ -132,7 +132,7 @@ export default function Settings() {
             <div>
               <label className="block text-dark-300 mb-2">Industry / Business Type</label>
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
                 <input
                   type="text"
                   value={industrySearch || company.industry}

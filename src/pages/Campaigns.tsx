@@ -104,7 +104,7 @@ export default function Campaigns() {
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
         <div className="flex items-center gap-4 w-full md:w-auto">
           <div className="relative flex-1 md:w-80">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
             <input
               type="text"
               placeholder="Search campaigns..."
@@ -370,7 +370,7 @@ export default function Campaigns() {
                     <div className="mt-4 p-4 rounded-xl border border-dark-700 space-y-4">
                       {/* Location Search */}
                       <div className="relative">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
                         <input
                           type="text"
                           value={locationSearch}

@@ -185,7 +185,7 @@ export default function Keywords() {
       {/* Search and Filters */}
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
         <div className="relative w-full md:w-80">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
           <input
             type="text"
             placeholder="Search keywords..."

@@ -109,7 +109,7 @@ export default function Login() {
             <div>
               <label className="block text-dark-300 mb-2">Email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
                 <input
                   type="email"
                   value={email}
@@ -123,7 +123,7 @@ export default function Login() {
             <div>
               <label className="block text-dark-300 mb-2">Password</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
@@ -273,7 +273,7 @@ export default function Login() {
                   <div>
                     <label className="block text-dark-300 mb-2 text-sm">Email address</label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
                       <input
                         type="email"
                         value={resetEmail}
