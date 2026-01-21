@@ -270,6 +270,34 @@ body {
   .hide-mobile {
     display: none;
   }
+  
+  /* Better touch targets on mobile */
+  .btn-primary, .btn-secondary {
+    min-height: 44px;
+  }
+  
+  /* Adjust stat cards for mobile */
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  /* Table scroll hint */
+  .data-table {
+    font-size: 0.875rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Very small screens */
+  .btn-primary, .btn-secondary {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 @media (min-width: 769px) {

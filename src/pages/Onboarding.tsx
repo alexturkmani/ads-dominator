@@ -182,8 +182,8 @@ export default function Onboarding() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <h2 className="text-2xl font-bold text-white mb-2">Let's analyze your business</h2>
-            <p className="text-dark-400 mb-8">Enter your website URL and tell us about your business.</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Let's analyze your business</h2>
+            <p className="text-dark-400 mb-6 sm:mb-8 text-sm sm:text-base">Enter your website URL and tell us about your business.</p>
             
             <div className="space-y-6">
               <div>
@@ -300,7 +300,7 @@ export default function Onboarding() {
               {!selectedBusinessType && !businessSearch && (
                 <div>
                   <p className="text-dark-400 text-sm mb-3">Or browse by category:</p>
-                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                     {businessCategories.map((category) => (
                       <button
                         key={category.id}
@@ -406,7 +406,7 @@ export default function Onboarding() {
               
               <div>
                 <label className="block text-dark-300 mb-2">Monthly Ad Budget</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {budgetRanges.map((range) => (
                     <button
                       key={range}
@@ -775,10 +775,10 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-dark-950 flex items-center justify-center p-3 sm:p-4">
       <div className="absolute inset-0 animated-bg opacity-30" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-primary-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-accent-500/10 rounded-full blur-3xl" />
 
       <div className="w-full max-w-lg relative z-10">
         <div className="text-center mb-8">
@@ -804,7 +804,7 @@ export default function Onboarding() {
           </div>
         </div>
 
-        <div className="p-8 rounded-2xl glass">
+        <div className="p-4 sm:p-8 rounded-2xl glass">
           <AnimatePresence mode="wait">
             {renderStep()}
           </AnimatePresence>

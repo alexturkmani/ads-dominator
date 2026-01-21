@@ -1,10 +1,10 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Zap, LayoutDashboard, Target, Search, BarChart3, 
   Beaker, Settings, ChevronLeft, ChevronRight,
-  Bell, User, HelpCircle, Sparkles
+  Bell, User, HelpCircle, Sparkles, Menu, X
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
 
@@ -26,20 +26,49 @@ const menuItems = [
 export default function DashboardLayout({ children, title, subtitle }: DashboardLayoutProps) {
   const location = useLocation()
   const { sidebarOpen, toggleSidebar, user, recommendations, autoOptimize } = useStore()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(true)
   
   const pendingRecommendations = recommendations.filter(r => r.status === 'pending').length
 
+  // Handle responsive detection
+  useEffect(() => {
+    const checkIsDesktop = () => setIsDesktop(window.innerWidth >= 1024)
+    checkIsDesktop()
+    window.addEventListener('resize', checkIsDesktop)
+    return () => window.removeEventListener('resize', checkIsDesktop)
+  }, [])
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [location.pathname])
+
   return (
     <div className="min-h-screen bg-dark-950 flex">
-      {/* Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={{ width: sidebarOpen ? 256 : 80 }}
-        className="fixed left-0 top-0 h-screen bg-dark-900 border-r border-dark-800 z-40 flex flex-col"
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar - Hidden on mobile unless menu open */}
+      <aside
+        className={`fixed left-0 top-0 h-screen bg-dark-900 border-r border-dark-800 z-50 flex flex-col transition-all duration-300 ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0`}
+        style={{ width: sidebarOpen ? 256 : 80 }}
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-dark-800">
-          <Link to="/dashboard" className="flex items-center gap-3">
+          <Link to="/dashboard" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center flex-shrink-0">
               <Zap className="w-6 h-6 text-white" />
             </div>
@@ -53,6 +82,13 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
               </motion.span>
             )}
           </Link>
+          {/* Mobile close button */}
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden p-2 rounded-lg text-dark-400 hover:text-white hover:bg-dark-800"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Navigation */}
@@ -64,6 +100,7 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
                 <li key={item.path}>
                   <Link
                     to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
                     className={`sidebar-item ${isActive ? 'active' : ''}`}
                   >
                     <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -107,10 +144,10 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
           )}
         </nav>
 
-        {/* Toggle Button */}
+        {/* Toggle Button - Desktop only */}
         <button
           onClick={toggleSidebar}
-          className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-dark-800 border border-dark-700 flex items-center justify-center text-dark-400 hover:text-white transition"
+          className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 rounded-full bg-dark-800 border border-dark-700 items-center justify-center text-dark-400 hover:text-white transition"
         >
           {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
@@ -136,23 +173,32 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
             )}
           </Link>
         </div>
-      </motion.aside>
+      </aside>
 
       {/* Main Content */}
       <main
-        className="flex-1 transition-all duration-300"
-        style={{ marginLeft: sidebarOpen ? 256 : 80 }}
+        className={`flex-1 transition-all duration-300 w-full ${isDesktop ? '' : ''}`}
+        style={{ marginLeft: isDesktop ? (sidebarOpen ? 256 : 80) : 0 }}
       >
         {/* Top Header */}
-        <header className="h-16 bg-dark-900/50 backdrop-blur-lg border-b border-dark-800 flex items-center justify-between px-6 sticky top-0 z-30">
-          <div>
-            <h1 className="text-xl font-bold text-white">{title}</h1>
-            {subtitle && <p className="text-sm text-dark-400">{subtitle}</p>}
+        <header className="h-16 bg-dark-900/50 backdrop-blur-lg border-b border-dark-800 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            {/* Mobile hamburger menu */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 -ml-2 rounded-lg text-dark-400 hover:text-white hover:bg-dark-800"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold text-white">{title}</h1>
+              {subtitle && <p className="text-xs sm:text-sm text-dark-400 hidden sm:block">{subtitle}</p>}
+            </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Search */}
-            <div className="relative hidden md:block">
+            <div className="relative hidden lg:block">
               <input
                 type="text"
                 placeholder="Search..."
@@ -181,7 +227,7 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
         </header>
 
         {/* Page Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {children}
         </div>
       </main>

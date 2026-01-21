@@ -78,24 +78,24 @@ export default function Dashboard() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary-500/10 to-accent-500/10 border border-primary-500/20 flex items-center justify-between"
+        className="mb-6 p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary-500/10 to-accent-500/10 border border-primary-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
       >
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
-            <Brain className="w-6 h-6 text-white" />
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center flex-shrink-0">
+            <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">AI is actively optimizing your campaigns</h3>
-            <p className="text-dark-400 text-sm">
-              Last optimization: 12 minutes ago • {pendingRecommendations.length} new recommendations available
+            <h3 className="font-semibold text-white text-sm sm:text-base">AI is actively optimizing your campaigns</h3>
+            <p className="text-dark-400 text-xs sm:text-sm">
+              Last optimization: 12 minutes ago • {pendingRecommendations.length} new recommendations
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-end sm:self-center">
           <div className="relative">
             <span className="w-3 h-3 bg-success-400 rounded-full inline-block" />
           </div>
-          <span className="text-success-400 font-medium">Active</span>
+          <span className="text-success-400 font-medium text-sm">Active</span>
         </div>
       </motion.div>
 
@@ -121,7 +121,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="text-dark-400 text-sm mb-1">{stat.label}</div>
-              <div className="text-3xl font-bold text-white">{stat.value}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-white">{stat.value}</div>
             </motion.div>
           )
         })}

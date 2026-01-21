@@ -102,9 +102,9 @@ export default function Campaigns() {
       subtitle="Manage and optimize your Google Ads campaigns"
     >
       {/* Actions Bar */}
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-6">
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="relative flex-1 md:w-80">
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+          <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500 pointer-events-none" />
             <input
               type="text"
@@ -114,23 +114,25 @@ export default function Campaigns() {
               className="input-field pl-12 w-full"
             />
           </div>
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="input-field pr-10 appearance-none cursor-pointer"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="paused">Paused</option>
-              <option value="ended">Ended</option>
-            </select>
-            <Filter className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-dark-500 pointer-events-none" />
+          <div className="flex gap-3">
+            <div className="relative flex-1 sm:flex-none">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="input-field pr-10 appearance-none cursor-pointer w-full"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+                <option value="ended">Ended</option>
+              </select>
+              <Filter className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-dark-500 pointer-events-none" />
+            </div>
+            <button className="btn-primary flex items-center justify-center gap-2 whitespace-nowrap">
+              <Plus className="w-4 h-4" /> <span className="hidden sm:inline">New Campaign</span><span className="sm:hidden">New</span>
+            </button>
           </div>
         </div>
-        <button className="btn-primary flex items-center gap-2">
-          <Plus className="w-4 h-4" /> New Campaign
-        </button>
       </div>
 
       {/* Campaign Stats Summary */}

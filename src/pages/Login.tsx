@@ -76,10 +76,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-dark-950 flex items-center justify-center p-3 sm:p-4">
       <div className="absolute inset-0 animated-bg opacity-30" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-primary-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-accent-500/10 rounded-full blur-3xl" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -95,9 +95,9 @@ export default function Login() {
           </Link>
         </div>
 
-        <div className="p-8 rounded-2xl glass">
-          <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
-          <p className="text-dark-400 mb-8">Log in to access your dashboard</p>
+        <div className="p-4 sm:p-8 rounded-2xl glass">
+          <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">Welcome back</h1>
+          <p className="text-dark-400 mb-6 sm:mb-8 text-sm sm:text-base">Log in to access your dashboard</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
