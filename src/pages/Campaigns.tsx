@@ -8,7 +8,7 @@ import {
 import DashboardLayout from '../components/DashboardLayout'
 import { useStore } from '../store/useStore'
 import { Campaign, LocationTarget } from '../types'
-import { searchLocations, radiusOptions, type Location } from '../data/locations'
+import { searchLocations, radiusOptions, radiusOptionsKm, type Location } from '../data/locations'
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -37,6 +37,7 @@ export default function Campaigns() {
   const [selectedLocationForRadius, setSelectedLocationForRadius] = useState<Location | null>(null)
   const [showRadiusModal, setShowRadiusModal] = useState(false)
   const [selectedRadius, setSelectedRadius] = useState(25)
+  const [radiusUnit, setRadiusUnit] = useState<'miles' | 'km'>('km')
   const [excludeOutsideRadius, setExcludeOutsideRadius] = useState(true)
 
   const locationSearchResults = useMemo(() => {
@@ -62,7 +63,7 @@ export default function Campaigns() {
       type: location.type,
       targetType,
       coordinates: location.coordinates,
-      ...(radius && { radius: { value: radius, unit: 'miles' as const } }),
+      ...(radius && { radius: { value: radius, unit: radiusUnit } }),
     };
     setCampaignLocations(prev => [...prev, newTarget]);
   };
@@ -522,6 +523,35 @@ export default function Campaigns() {
                 Target people within a specific distance from <span className="text-white">{selectedLocationForRadius.name}</span>
               </p>
               
+              {/* Unit Toggle */}
+              <div className="mb-4">
+                <label className="block text-dark-300 mb-2">Unit</label>
+                <div className="flex rounded-lg overflow-hidden border border-dark-600">
+                  <button
+                    type="button"
+                    onClick={() => setRadiusUnit('km')}
+                    className={`flex-1 py-2 text-sm font-medium transition ${
+                      radiusUnit === 'km'
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-dark-800 text-dark-400 hover:text-white'
+                    }`}
+                  >
+                    Kilometers
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRadiusUnit('miles')}
+                    className={`flex-1 py-2 text-sm font-medium transition ${
+                      radiusUnit === 'miles'
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-dark-800 text-dark-400 hover:text-white'
+                    }`}
+                  >
+                    Miles
+                  </button>
+                </div>
+              </div>
+              
               <div className="mb-6">
                 <label className="block text-dark-300 mb-2">Radius</label>
                 <select
@@ -529,7 +559,7 @@ export default function Campaigns() {
                   onChange={(e) => setSelectedRadius(Number(e.target.value))}
                   className="input-field"
                 >
-                  {radiusOptions.map((opt) => (
+                  {(radiusUnit === 'km' ? radiusOptionsKm : radiusOptions).map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
