@@ -489,11 +489,11 @@ export default function Onboarding() {
                 <p className="text-dark-400 text-sm mb-3">Quick add:</p>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { name: 'United States', type: 'country' },
-                    { name: 'California', type: 'state' },
-                    { name: 'Texas', type: 'state' },
-                    { name: 'Florida', type: 'state' },
-                    { name: 'New York', type: 'state' },
+                    { name: 'United States', type: 'country', countryCode: 'US' },
+                    { name: 'California', type: 'state', countryCode: 'US' },
+                    { name: 'Texas', type: 'state', countryCode: 'US' },
+                    { name: 'Florida', type: 'state', countryCode: 'US' },
+                    { name: 'New York', type: 'state', countryCode: 'US' },
                   ].map((loc) => {
                     const isAdded = locationTargets.some(t => t.name === loc.name);
                     return (
@@ -502,7 +502,7 @@ export default function Onboarding() {
                         onClick={() => {
                           if (!isAdded) {
                             addLocationTarget(
-                              { id: loc.name.toLowerCase().replace(/\s/g, '-'), name: loc.name, type: loc.type as 'country' | 'state', country: 'United States' },
+                              { id: loc.name.toLowerCase().replace(/\s/g, '-'), name: loc.name, type: loc.type as 'country' | 'state', country: 'United States', countryCode: loc.countryCode },
                               'include'
                             );
                           }
@@ -517,7 +517,7 @@ export default function Onboarding() {
                         + {loc.name}
                       </button>
                     );
-                  })}
+                  })}}
                 </div>
               </div>
               

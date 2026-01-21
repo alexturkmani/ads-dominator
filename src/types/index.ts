@@ -198,7 +198,7 @@ export interface Account {
 export interface LocationTarget {
   id: string;
   name: string;
-  type: 'country' | 'state' | 'city' | 'zip';
+  type: 'country' | 'state' | 'city' | 'region';
   targetType: 'include' | 'exclude';
   radius?: {
     value: number;
