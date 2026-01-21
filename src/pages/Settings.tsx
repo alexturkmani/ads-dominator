@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { 
   User, Building2, CreditCard, Bell, Lock, Link2,
-  Save, Trash2, Check, ExternalLink
+  Save, Trash2, Check, ExternalLink, Search, X
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { useStore } from '../store/useStore'
+import { businessCategories, searchBusinessTypes } from '../data/businessTypes'
 
 const tabs = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -17,9 +18,11 @@ const tabs = [
 ]
 
 export default function Settings() {
-  const { user } = useStore()
+  const { user, businessProfile } = useStore()
   const [activeTab, setActiveTab] = useState('profile')
   const [saved, setSaved] = useState(false)
+  const [industrySearch, setIndustrySearch] = useState('')
+  const [showIndustryDropdown, setShowIndustryDropdown] = useState(false)
   
   const [profile, setProfile] = useState({
     name: user?.name || 'Demo User',
@@ -30,10 +33,16 @@ export default function Settings() {
 
   const [company, setCompany] = useState({
     name: user?.company || 'Demo Company',
-    website: 'https://example.com',
-    industry: 'Local Services',
+    website: businessProfile?.websiteUrl || 'https://example.com',
+    industry: businessProfile?.industry || 'Local Services',
+    businessType: businessProfile?.businessType || '',
     size: '1-10 employees',
   })
+
+  const industrySearchResults = useMemo(() => {
+    if (!industrySearch.trim()) return [];
+    return searchBusinessTypes(industrySearch).slice(0, 8);
+  }, [industrySearch]);
 
   const [notifications, setNotifications] = useState({
     emailAlerts: true,
@@ -121,21 +130,74 @@ export default function Settings() {
               />
             </div>
             <div>
-              <label className="block text-dark-300 mb-2">Industry</label>
-              <select
-                value={company.industry}
-                onChange={(e) => setCompany({ ...company, industry: e.target.value })}
-                className="input-field"
-              >
-                <option>Local Services</option>
-                <option>E-commerce</option>
-                <option>SaaS / Software</option>
-                <option>Healthcare</option>
-                <option>Real Estate</option>
-                <option>Finance</option>
-                <option>Education</option>
-                <option>Other</option>
-              </select>
+              <label className="block text-dark-300 mb-2">Industry / Business Type</label>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                <input
+                  type="text"
+                  value={industrySearch || company.industry}
+                  onChange={(e) => {
+                    setIndustrySearch(e.target.value);
+                    setShowIndustryDropdown(true);
+                  }}
+                  onFocus={() => setShowIndustryDropdown(true)}
+                  placeholder="Search for your business type..."
+                  className="input-field pl-12"
+                />
+                {(industrySearch || company.industry) && (
+                  <button
+                    onClick={() => {
+                      setIndustrySearch('');
+                      setCompany({ ...company, industry: '', businessType: '' });
+                    }}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-dark-500 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+                
+                {showIndustryDropdown && industrySearch && industrySearchResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-dark-800 border border-dark-600 rounded-lg shadow-xl z-20 max-h-64 overflow-y-auto">
+                    {industrySearchResults.map((type) => (
+                      <button
+                        key={type.id}
+                        onClick={() => {
+                          setCompany({ ...company, industry: type.category, businessType: type.id });
+                          setIndustrySearch(type.name);
+                          setShowIndustryDropdown(false);
+                        }}
+                        className="w-full px-4 py-3 text-left hover:bg-dark-700 flex items-center justify-between border-b border-dark-700 last:border-0"
+                      >
+                        <div>
+                          <span className="text-white">{type.name}</span>
+                          <span className="text-dark-400 text-sm ml-2">• {type.category}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {!industrySearch && !company.businessType && (
+                <div className="mt-3">
+                  <p className="text-dark-500 text-sm mb-2">Or select a category:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {businessCategories.slice(0, 6).map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          setCompany({ ...company, industry: cat.name });
+                          setIndustrySearch('');
+                          setShowIndustryDropdown(false);
+                        }}
+                        className="px-3 py-1.5 rounded-full text-xs bg-dark-700 text-dark-300 hover:bg-dark-600 hover:text-white transition"
+                      >
+                        {cat.icon} {cat.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-dark-300 mb-2">Company Size</label>

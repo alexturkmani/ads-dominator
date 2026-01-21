@@ -1,12 +1,14 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Plus, Search, Filter, Play, Pause, 
-  Edit2, TrendingUp, TrendingDown, Settings2
+  Edit2, TrendingUp, TrendingDown, Settings2,
+  MapPin, Target, X, Ban
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { useStore } from '../store/useStore'
-import { Campaign } from '../types'
+import { Campaign, LocationTarget } from '../types'
+import { searchLocations, radiusOptions, type Location } from '../data/locations'
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -26,6 +28,48 @@ export default function Campaigns() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
+  const [showLocationSettings, setShowLocationSettings] = useState(false)
+  
+  // Location targeting state
+  const [locationSearch, setLocationSearch] = useState('')
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false)
+  const [campaignLocations, setCampaignLocations] = useState<LocationTarget[]>([])
+  const [selectedLocationForRadius, setSelectedLocationForRadius] = useState<Location | null>(null)
+  const [showRadiusModal, setShowRadiusModal] = useState(false)
+  const [selectedRadius, setSelectedRadius] = useState(25)
+  const [excludeOutsideRadius, setExcludeOutsideRadius] = useState(true)
+
+  const locationSearchResults = useMemo(() => {
+    if (!locationSearch.trim()) return [];
+    return searchLocations(locationSearch);
+  }, [locationSearch]);
+
+  const handleSelectLocation = (location: Location, targetType: 'include' | 'exclude' = 'include') => {
+    if (location.type === 'city' && location.coordinates && targetType === 'include') {
+      setSelectedLocationForRadius(location);
+      setShowRadiusModal(true);
+    } else {
+      addLocationTarget(location, targetType);
+    }
+    setLocationSearch('');
+    setShowLocationDropdown(false);
+  };
+
+  const addLocationTarget = (location: Location, targetType: 'include' | 'exclude', radius?: number) => {
+    const newTarget: LocationTarget = {
+      id: `${location.id}-${Date.now()}`,
+      name: location.name,
+      type: location.type,
+      targetType,
+      coordinates: location.coordinates,
+      ...(radius && { radius: { value: radius, unit: 'miles' as const } }),
+    };
+    setCampaignLocations(prev => [...prev, newTarget]);
+  };
+
+  const removeLocationTarget = (id: string) => {
+    setCampaignLocations(prev => prev.filter(t => t.id !== id));
+  };
 
   const filteredCampaigns = campaigns.filter((campaign) => {
     const matchesSearch = campaign.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -254,7 +298,7 @@ export default function Campaigns() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl p-6 rounded-2xl bg-dark-900 border border-dark-700"
+            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 rounded-2xl bg-dark-900 border border-dark-700"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-6">
@@ -295,6 +339,152 @@ export default function Campaigns() {
               </div>
             </div>
 
+            {/* Location Targeting Section */}
+            <div className="mb-6">
+              <div 
+                className="flex items-center justify-between p-4 rounded-xl bg-dark-800 cursor-pointer hover:bg-dark-700 transition"
+                onClick={() => setShowLocationSettings(!showLocationSettings)}
+              >
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-5 h-5 text-primary-400" />
+                  <div>
+                    <div className="text-white font-medium">Location Targeting</div>
+                    <div className="text-dark-400 text-sm">
+                      {selectedCampaign.targetLocations.length > 0 
+                        ? selectedCampaign.targetLocations.join(', ')
+                        : 'No locations set'}
+                    </div>
+                  </div>
+                </div>
+                <Settings2 className={`w-5 h-5 text-dark-400 transition ${showLocationSettings ? 'rotate-90' : ''}`} />
+              </div>
+              
+              <AnimatePresence>
+                {showLocationSettings && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 p-4 rounded-xl border border-dark-700 space-y-4">
+                      {/* Location Search */}
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-500" />
+                        <input
+                          type="text"
+                          value={locationSearch}
+                          onChange={(e) => {
+                            setLocationSearch(e.target.value);
+                            setShowLocationDropdown(true);
+                          }}
+                          onFocus={() => setShowLocationDropdown(true)}
+                          placeholder="Search cities, states, or countries..."
+                          className="input-field pl-12"
+                        />
+                        
+                        {showLocationDropdown && locationSearch && locationSearchResults.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-2 bg-dark-800 border border-dark-600 rounded-lg shadow-xl z-30 max-h-48 overflow-y-auto">
+                            {locationSearchResults.map((loc) => (
+                              <div
+                                key={loc.id}
+                                className="px-4 py-2 hover:bg-dark-700 flex items-center justify-between border-b border-dark-700 last:border-0"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="w-4 h-4 text-dark-400" />
+                                  <span className="text-white">{loc.name}</span>
+                                  <span className="text-dark-500 text-xs">
+                                    {loc.type === 'city' ? 'City' : loc.type === 'state' ? 'State' : 'Country'}
+                                  </span>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleSelectLocation(loc, 'include')}
+                                    className="px-2 py-1 text-xs rounded bg-success-500/20 text-success-400 hover:bg-success-500/30"
+                                  >
+                                    {loc.type === 'city' ? '+ Radius' : '+ Include'}
+                                  </button>
+                                  <button
+                                    onClick={() => handleSelectLocation(loc, 'exclude')}
+                                    className="px-2 py-1 text-xs rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                                  >
+                                    Exclude
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Current Locations */}
+                      {campaignLocations.length > 0 && (
+                        <div className="space-y-2">
+                          {campaignLocations.filter(t => t.targetType === 'include').map((target) => (
+                            <div
+                              key={target.id}
+                              className="flex items-center justify-between p-3 rounded-lg bg-dark-800 border border-dark-700"
+                            >
+                              <div className="flex items-center gap-3">
+                                <Target className="w-4 h-4 text-success-400" />
+                                <span className="text-white">{target.name}</span>
+                                {target.radius && (
+                                  <span className="text-primary-400 text-sm">
+                                    {target.radius.value} {target.radius.unit} radius
+                                  </span>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => removeLocationTarget(target.id)}
+                                className="p-1 rounded hover:bg-dark-600 text-dark-400 hover:text-red-400"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                          
+                          {campaignLocations.filter(t => t.targetType === 'exclude').map((target) => (
+                            <div
+                              key={target.id}
+                              className="flex items-center justify-between p-3 rounded-lg bg-red-500/10 border border-red-500/20"
+                            >
+                              <div className="flex items-center gap-3">
+                                <Ban className="w-4 h-4 text-red-400" />
+                                <span className="text-white">{target.name}</span>
+                                <span className="text-red-400 text-sm">Excluded</span>
+                              </div>
+                              <button
+                                onClick={() => removeLocationTarget(target.id)}
+                                className="p-1 rounded hover:bg-dark-600 text-dark-400 hover:text-white"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Exclude Outside Radius */}
+                      {campaignLocations.some(t => t.radius) && (
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-dark-800">
+                          <div className="text-dark-300 text-sm">Exclude all areas outside defined radius</div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={excludeOutsideRadius}
+                              onChange={(e) => setExcludeOutsideRadius(e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-9 h-5 bg-dark-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setSelectedCampaign(null)}
@@ -303,12 +493,70 @@ export default function Campaigns() {
                 Close
               </button>
               <button className="btn-primary flex items-center gap-2">
-                <Edit2 className="w-4 h-4" /> Edit Campaign
+                <Edit2 className="w-4 h-4" /> Save Changes
               </button>
             </div>
           </motion.div>
         </motion.div>
       )}
+      
+      {/* Radius Modal */}
+      <AnimatePresence>
+        {showRadiusModal && selectedLocationForRadius && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60]"
+            onClick={() => setShowRadiusModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-dark-900 border border-dark-700 rounded-xl p-6 w-full max-w-md m-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-white mb-2">Set targeting radius</h3>
+              <p className="text-dark-400 mb-6">
+                Target people within a specific distance from <span className="text-white">{selectedLocationForRadius.name}</span>
+              </p>
+              
+              <div className="mb-6">
+                <label className="block text-dark-300 mb-2">Radius</label>
+                <select
+                  value={selectedRadius}
+                  onChange={(e) => setSelectedRadius(Number(e.target.value))}
+                  className="input-field"
+                >
+                  {radiusOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRadiusModal(false)}
+                  className="flex-1 btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    addLocationTarget(selectedLocationForRadius, 'include', selectedRadius);
+                    setShowRadiusModal(false);
+                    setSelectedLocationForRadius(null);
+                  }}
+                  className="flex-1 btn-primary"
+                >
+                  Add Location
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </DashboardLayout>
   )
 }

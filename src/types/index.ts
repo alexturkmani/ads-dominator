@@ -195,16 +195,34 @@ export interface Account {
   lastSyncAt: string;
 }
 
+export interface LocationTarget {
+  id: string;
+  name: string;
+  type: 'country' | 'state' | 'city' | 'zip';
+  targetType: 'include' | 'exclude';
+  radius?: {
+    value: number;
+    unit: 'miles' | 'km';
+  };
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
 export interface BusinessProfile {
   websiteUrl: string;
   industry: string;
+  businessType?: string;
   targetAudience: string;
   uniqueSellingPoints: string[];
   competitors: string[];
   conversionGoal: 'leads' | 'sales' | 'signups' | 'calls';
   averageOrderValue?: number;
   profitMargin?: number;
-  targetLocations: string[];
+  targetLocations: string[]; // Legacy simple location list
+  locationTargets?: LocationTarget[]; // New advanced location targeting
+  excludeOutsideRadius?: boolean; // If true, exclude all locations outside the defined targets
 }
 
 export interface Notification {
