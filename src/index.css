@@ -111,9 +111,21 @@ body {
 
 /* Input Styles */
 .input-field {
-  @apply w-full px-4 py-3 bg-dark-800 border border-dark-600 rounded-lg text-white
+  @apply w-full py-3 bg-dark-800 border border-dark-600 rounded-lg text-white
          placeholder-dark-400 focus:outline-none focus:border-primary-500 focus:ring-2 
          focus:ring-primary-500/20 transition-all duration-300;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Input with left icon - proper padding for icon space */
+.input-field.pl-12 {
+  padding-left: 3rem !important;
+}
+
+/* Input with right icon */
+.input-field.pr-12 {
+  padding-right: 3rem !important;
 }
 
 /* Input with icon - ensure text doesn't overlap with icons */
