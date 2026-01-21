@@ -517,7 +517,7 @@ export default function Onboarding() {
                         + {loc.name}
                       </button>
                     );
-                  })}}
+                  })}
                 </div>
               </div>
               
