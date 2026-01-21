@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  Calendar, Download, TrendingUp, TrendingDown, 
-  ArrowRight, Filter
+  Calendar, Download, TrendingUp, TrendingDown
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend
+  PieChart, Pie, Cell
 } from 'recharts'
 import DashboardLayout from '../components/DashboardLayout'
 import { mockAnalyticsData, deviceBreakdown, geoPerformance } from '../data/mockData'
@@ -39,13 +38,14 @@ const hourlyData = [
   { hour: '22:00', clicks: 156, conversions: 8 },
 ]
 
-const conversionFunnel = [
-  { stage: 'Impressions', value: 125000 },
-  { stage: 'Clicks', value: 4250 },
-  { stage: 'Site Visits', value: 3850 },
-  { stage: 'Form Starts', value: 890 },
-  { stage: 'Conversions', value: 156 },
-]
+// Conversion funnel data available for future use
+// const conversionFunnel = [
+//   { stage: 'Impressions', value: 125000 },
+//   { stage: 'Clicks', value: 4250 },
+//   { stage: 'Site Visits', value: 3850 },
+//   { stage: 'Form Starts', value: 890 },
+//   { stage: 'Conversions', value: 156 },
+// ]
 
 const campaignPerformance = [
   { name: 'Brand', spend: 2500, conversions: 45, color: '#0ea5e9' },

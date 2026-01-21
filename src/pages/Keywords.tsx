@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  Search, Plus, TrendingUp, TrendingDown, Sparkles, 
-  Check, X, AlertTriangle, ArrowUp, ArrowDown
+  Search, Plus, TrendingUp, Sparkles, 
+  X, AlertTriangle, ArrowUp, ArrowDown
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { mockKeywords, mockKeywordSuggestions as keywordSuggestions } from '../data/mockData'

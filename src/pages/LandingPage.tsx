@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { 
-  Zap, Target, TrendingUp, BarChart3, Brain, DollarSign, 
+  Zap, Target, BarChart3, Brain, DollarSign, 
   ChevronRight, Check, ArrowRight, Sparkles,
   LineChart, Rocket, Play, Star
 } from 'lucide-react'

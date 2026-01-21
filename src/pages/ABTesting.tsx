@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  Plus, Beaker, TrendingUp, Check, X, Play, Pause,
-  ArrowRight, Trophy, AlertCircle, Clock, Sparkles
+  Plus, Beaker, TrendingUp, Check, Play, Pause,
+  Trophy, AlertCircle, Clock, Sparkles
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { mockABTests } from '../data/mockData'
@@ -13,8 +13,8 @@ const formatNumber = (value: number) => {
 }
 
 export default function ABTesting() {
-  const [tests, setTests] = useState<ABTest[]>(mockABTests)
-  const [showNewTest, setShowNewTest] = useState(false)
+  const [tests] = useState<ABTest[]>(mockABTests)
+  const [, setShowNewTest] = useState(false)
 
   const activeTests = tests.filter(t => t.status === 'running')
   const completedTests = tests.filter(t => t.status === 'completed')
@@ -41,7 +41,6 @@ export default function ABTesting() {
 
   const TestCard = ({ test }: { test: ABTest }) => {
     const winner = test.variants.find(v => v.isWinner)
-    const control = test.variants.find(v => v.isControl)
     
     return (
       <motion.div
@@ -78,7 +77,7 @@ export default function ABTesting() {
         </div>
 
         <div className="space-y-4">
-          {test.variants.map((variant, index) => {
+          {test.variants.map((variant) => {
             const isWinner = variant.isWinner
             const isControl = variant.isControl
             const convRate = ((variant.conversions / variant.impressions) * 100).toFixed(2)

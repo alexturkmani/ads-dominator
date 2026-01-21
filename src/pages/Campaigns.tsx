@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  Plus, Search, Filter, MoreVertical, Play, Pause, 
-  Trash2, Edit2, TrendingUp, TrendingDown, Settings2
+  Plus, Search, Filter, Play, Pause, 
+  Edit2, TrendingUp, TrendingDown, Settings2
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { useStore } from '../store/useStore'
@@ -189,9 +189,9 @@ export default function Campaigns() {
                   <td>
                     <div className="flex items-center gap-1">
                       <span className="text-white">{campaign.conversions}</span>
-                      {campaign.conversionChange > 0 ? (
+                      {(campaign.conversionChange ?? 0) > 0 ? (
                         <TrendingUp className="w-4 h-4 text-success-400" />
-                      ) : campaign.conversionChange < 0 ? (
+                      ) : (campaign.conversionChange ?? 0) < 0 ? (
                         <TrendingDown className="w-4 h-4 text-red-400" />
                       ) : null}
                     </div>

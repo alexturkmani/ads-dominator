@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
   User, Building2, CreditCard, Bell, Lock, Link2,
-  Save, Trash2, Plus, Check, ExternalLink
+  Save, Trash2, Check, ExternalLink
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { useStore } from '../store/useStore'
