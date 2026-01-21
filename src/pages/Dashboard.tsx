@@ -92,7 +92,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="pulse-dot">
+          <div className="relative">
             <span className="w-3 h-3 bg-success-400 rounded-full inline-block" />
           </div>
           <span className="text-success-400 font-medium">Active</span>

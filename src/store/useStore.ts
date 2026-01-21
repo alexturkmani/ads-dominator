@@ -2,6 +2,13 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Campaign, DashboardMetrics, AIRecommendation, User, BusinessProfile, Notification } from '../types'
 import { mockCampaigns, mockMetrics, mockRecommendations } from '../data/mockData'
+import { googleAdsApi, CampaignChange } from '../services/googleAdsApi'
+
+interface GoogleAdsConfig {
+  isConnected: boolean;
+  customerId: string;
+  autoApplyHighConfidence: boolean;
+}
 
 interface AppState {
   user: User | null;
@@ -14,6 +21,8 @@ interface AppState {
   autoOptimize: boolean;
   sidebarOpen: boolean;
   notifications: Notification[];
+  googleAdsConfig: GoogleAdsConfig;
+  appliedChanges: CampaignChange[];
   
   setUser: (user: User | null) => void;
   setBusinessProfile: (profile: BusinessProfile) => void;
@@ -29,11 +38,13 @@ interface AppState {
   addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'read'>) => void;
   markNotificationRead: (id: string) => void;
   logout: () => void;
+  setGoogleAdsConfig: (config: Partial<GoogleAdsConfig>) => void;
+  applyRecommendationToGoogleAds: (id: string, confidence: number) => Promise<boolean>;
 }
 
 export const useStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       businessProfile: null,
@@ -44,6 +55,12 @@ export const useStore = create<AppState>()(
       autoOptimize: true,
       sidebarOpen: true,
       notifications: [],
+      googleAdsConfig: {
+        isConnected: false,
+        customerId: '',
+        autoApplyHighConfidence: true,
+      },
+      appliedChanges: [],
 
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       
@@ -102,6 +119,77 @@ export const useStore = create<AppState>()(
         isAuthenticated: false,
         businessProfile: null,
       }),
+
+      setGoogleAdsConfig: (config) => set((state) => ({
+        googleAdsConfig: { ...state.googleAdsConfig, ...config },
+      })),
+
+      /**
+       * Apply a recommendation directly to Google Ads
+       * Only applies when confidence is 100%
+       */
+      applyRecommendationToGoogleAds: async (id: string, confidence: number) => {
+        const state = get();
+        const recommendation = state.recommendations.find(r => r.id === id);
+        
+        if (!recommendation) {
+          console.error('Recommendation not found');
+          return false;
+        }
+
+        // Only auto-apply when confidence is 100%
+        if (confidence !== 100) {
+          get().addNotification({
+            type: 'warning',
+            title: 'Manual Review Required',
+            message: `Cannot auto-apply: Confidence is ${confidence}%. Changes require 100% confidence for automatic application.`,
+          });
+          return false;
+        }
+
+        if (!state.googleAdsConfig.isConnected) {
+          get().addNotification({
+            type: 'error',
+            title: 'Google Ads Not Connected',
+            message: 'Please connect your Google Ads account in Settings to apply changes.',
+          });
+          return false;
+        }
+
+        // Attempt to apply the change via Google Ads API
+        const result = await googleAdsApi.applyRecommendation({
+          campaignId: 'campaign-1', // In production, this would come from the recommendation
+          type: recommendation.type as 'budget' | 'status' | 'bid' | 'keyword' | 'targeting',
+          value: recommendation.estimatedImpact,
+          confidence,
+          reason: recommendation.description,
+        });
+
+        if (result.success && result.data) {
+          // Update local state
+          set((state) => ({
+            recommendations: state.recommendations.map((r) =>
+              r.id === id ? { ...r, status: 'applied' as const } : r
+            ),
+            appliedChanges: [result.data!, ...state.appliedChanges],
+          }));
+
+          get().addNotification({
+            type: 'success',
+            title: 'Change Applied to Google Ads',
+            message: `${recommendation.title} has been applied with 100% confidence.`,
+          });
+
+          return true;
+        } else {
+          get().addNotification({
+            type: 'error',
+            title: 'Failed to Apply Change',
+            message: result.error || 'An unknown error occurred',
+          });
+          return false;
+        }
+      },
     }),
     {
       name: 'ads-optimizer-storage',
@@ -110,6 +198,7 @@ export const useStore = create<AppState>()(
         isAuthenticated: state.isAuthenticated,
         businessProfile: state.businessProfile,
         autoOptimize: state.autoOptimize,
+        googleAdsConfig: state.googleAdsConfig,
       }),
     }
   )

@@ -148,22 +148,6 @@ body {
          flex items-center justify-center text-primary-400;
 }
 
-/* Pulse Animation */
-.pulse-dot {
-  @apply relative;
-}
-
-.pulse-dot::before {
-  content: '';
-  @apply absolute w-3 h-3 bg-success-400 rounded-full;
-  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-}
-
-@keyframes pulse-ring {
-  0% { transform: scale(0.5); opacity: 1; }
-  100% { transform: scale(2); opacity: 0; }
-}
-
 /* Progress Bar */
 .progress-bar {
   @apply h-2 bg-dark-700 rounded-full overflow-hidden;
