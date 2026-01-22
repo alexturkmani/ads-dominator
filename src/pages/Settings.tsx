@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   User, Building2, CreditCard, Bell, Lock, Link2,
-  Save, Trash2, Check, ExternalLink, Search, X, RefreshCw, Plus, LogOut, AlertCircle
+  Save, Trash2, Check, ExternalLink, Search, X, RefreshCw, Plus, LogOut, AlertCircle, Loader
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { useStore } from '../store/useStore'
@@ -23,6 +23,7 @@ export default function Settings() {
     user, 
     businessProfile, 
     googleAdsConfig,
+    integrations: storeIntegrations,
     connectGoogleAds,
     disconnectGoogleAds,
     selectGoogleAdsAccount,
@@ -30,6 +31,15 @@ export default function Settings() {
     unlinkGoogleAdsAccount,
     fetchGoogleAdsAccounts,
     setGoogleAdsConfig,
+    fetchIntegrations,
+    connectGoogleAnalytics,
+    disconnectGoogleAnalytics,
+    connectGoogleTagManager,
+    disconnectGoogleTagManager,
+    connectSlack,
+    disconnectSlack,
+    saveZapierWebhook,
+    disconnectZapier,
   } = useStore()
   const [activeTab, setActiveTab] = useState('profile')
   const [saved, setSaved] = useState(false)
@@ -42,6 +52,9 @@ export default function Settings() {
   const [useRealApi, setUseRealApi] = useState(false)
   const [apiHealthy, setApiHealthy] = useState<boolean | null>(null)
   const [oauthError, setOauthError] = useState<string | null>(null)
+  const [connectingIntegration, setConnectingIntegration] = useState<string | null>(null)
+  const [showZapierModal, setShowZapierModal] = useState(false)
+  const [zapierWebhookUrl, setZapierWebhookUrl] = useState('')
   
   // Check for OAuth callback and API health on mount
   useEffect(() => {
@@ -54,6 +67,26 @@ export default function Settings() {
     } else if (callbackResult.error) {
       setOauthError(callbackResult.error)
     }
+    
+    // Check for integration OAuth callbacks
+    const urlParams = new URLSearchParams(window.location.search)
+    const integration = urlParams.get('integration')
+    const connected = urlParams.get('connected')
+    const error = urlParams.get('error')
+    
+    if (integration) {
+      if (connected === 'true') {
+        // Refresh integrations state
+        fetchIntegrations()
+      } else if (error) {
+        setOauthError(`${integration} connection failed: ${error}`)
+      }
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+
+    // Fetch current integration status
+    fetchIntegrations()
 
     // Check API health
     googleAdsBackend.checkHealth().then((health) => {
@@ -676,28 +709,51 @@ export default function Settings() {
             <div className="space-y-4">
             {[
               { 
+                id: 'googleAnalytics',
                 name: 'Google Analytics', 
                 desc: 'Import analytics data for deeper insights', 
-                connected: true,
-                icon: '📊'
+                connected: storeIntegrations.googleAnalytics.connected,
+                icon: '📊',
+                onConnect: async () => {
+                  setConnectingIntegration('googleAnalytics');
+                  await connectGoogleAnalytics();
+                },
+                onDisconnect: disconnectGoogleAnalytics,
               },
               { 
+                id: 'googleTagManager',
                 name: 'Google Tag Manager', 
                 desc: 'Track conversions with GTM', 
-                connected: false,
-                icon: '🏷️'
+                connected: storeIntegrations.googleTagManager.connected,
+                icon: '🏷️',
+                onConnect: async () => {
+                  setConnectingIntegration('googleTagManager');
+                  await connectGoogleTagManager();
+                },
+                onDisconnect: disconnectGoogleTagManager,
               },
               { 
+                id: 'slack',
                 name: 'Slack', 
                 desc: 'Get notifications in Slack', 
-                connected: false,
-                icon: '💬'
+                connected: storeIntegrations.slack.connected,
+                icon: '💬',
+                onConnect: async () => {
+                  setConnectingIntegration('slack');
+                  await connectSlack();
+                },
+                onDisconnect: disconnectSlack,
               },
               { 
+                id: 'zapier',
                 name: 'Zapier', 
                 desc: 'Connect with 5000+ apps', 
-                connected: false,
-                icon: '⚡'
+                connected: storeIntegrations.zapier.connected,
+                icon: '⚡',
+                onConnect: () => {
+                  setShowZapierModal(true);
+                },
+                onDisconnect: disconnectZapier,
               },
             ].map((integration) => (
               <div
@@ -716,18 +772,86 @@ export default function Settings() {
                 {integration.connected ? (
                   <div className="flex items-center gap-3">
                     <span className="badge badge-success">Connected</span>
-                    <button className="text-dark-400 hover:text-white text-sm">
+                    <button 
+                      onClick={integration.onDisconnect}
+                      className="text-dark-400 hover:text-red-400 text-sm"
+                    >
                       Disconnect
                     </button>
                   </div>
                 ) : (
-                  <button className="btn-secondary text-sm flex items-center gap-1">
-                    Connect <ExternalLink className="w-3 h-3" />
+                  <button 
+                    onClick={integration.onConnect}
+                    disabled={connectingIntegration === integration.id}
+                    className="btn-secondary text-sm flex items-center gap-1"
+                  >
+                    {connectingIntegration === integration.id ? (
+                      <>
+                        <Loader className="w-3 h-3 animate-spin" /> Connecting...
+                      </>
+                    ) : (
+                      <>
+                        Connect <ExternalLink className="w-3 h-3" />
+                      </>
+                    )}
                   </button>
                 )}
               </div>
             ))}
             </div>
+
+            {/* Zapier Webhook Modal */}
+            {showZapierModal && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                <div className="bg-dark-800 rounded-xl p-6 w-full max-w-md border border-dark-700">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-white">Connect Zapier</h3>
+                    <button onClick={() => setShowZapierModal(false)} className="text-dark-400 hover:text-white">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <p className="text-dark-300 text-sm mb-4">
+                    Enter your Zapier webhook URL to receive campaign events. You can create a Zap
+                    that triggers on webhooks at zapier.com.
+                  </p>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-dark-300 mb-2">Webhook URL</label>
+                      <input
+                        type="url"
+                        value={zapierWebhookUrl}
+                        onChange={(e) => setZapierWebhookUrl(e.target.value)}
+                        className="input-field"
+                        placeholder="https://hooks.zapier.com/hooks/catch/..."
+                      />
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowZapierModal(false)}
+                        className="btn-secondary flex-1"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (zapierWebhookUrl.trim()) {
+                            const success = await saveZapierWebhook(zapierWebhookUrl);
+                            if (success) {
+                              setShowZapierModal(false);
+                              setZapierWebhookUrl('');
+                            }
+                          }
+                        }}
+                        disabled={!zapierWebhookUrl.trim()}
+                        className="btn-primary flex-1"
+                      >
+                        Save Webhook
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )
       

@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import type { Campaign, DashboardMetrics, AIRecommendation, User, BusinessProfile, Notification } from '../types'
 import { mockCampaigns, mockMetrics, mockRecommendations } from '../data/mockData'
 import { googleAdsApi, CampaignChange, GoogleAdsAccount } from '../services/googleAdsApi'
+import * as integrations from '../services/integrations'
 
 interface GoogleAdsConfig {
   isConnected: boolean;
@@ -10,6 +11,13 @@ interface GoogleAdsConfig {
   autoApplyHighConfidence: boolean;
   linkedAccounts: GoogleAdsAccount[];
   selectedAccountId: string | null;
+}
+
+interface IntegrationState {
+  googleAnalytics: { connected: boolean; config?: Record<string, unknown>; connectedAt?: string };
+  googleTagManager: { connected: boolean; config?: Record<string, unknown>; connectedAt?: string };
+  slack: { connected: boolean; config?: Record<string, unknown>; connectedAt?: string };
+  zapier: { connected: boolean; config?: Record<string, unknown>; connectedAt?: string };
 }
 
 interface AppState {
@@ -25,6 +33,7 @@ interface AppState {
   notifications: Notification[];
   googleAdsConfig: GoogleAdsConfig;
   appliedChanges: CampaignChange[];
+  integrations: IntegrationState;
   
   setUser: (user: User | null) => void;
   setBusinessProfile: (profile: BusinessProfile) => void;
@@ -49,6 +58,18 @@ interface AppState {
   linkGoogleAdsAccount: (customerId: string) => Promise<boolean>;
   unlinkGoogleAdsAccount: (accountId: string) => void;
   startDemo: () => void;
+  // Integration actions
+  fetchIntegrations: () => Promise<void>;
+  connectGoogleAnalytics: () => Promise<void>;
+  disconnectGoogleAnalytics: () => Promise<void>;
+  connectGoogleTagManager: () => Promise<void>;
+  disconnectGoogleTagManager: () => Promise<void>;
+  connectSlack: () => Promise<void>;
+  disconnectSlack: () => Promise<void>;
+  saveZapierWebhook: (webhookUrl: string) => Promise<boolean>;
+  disconnectZapier: () => Promise<void>;
+  sendSlackNotification: (message: string, type?: 'info' | 'success' | 'warning' | 'error') => Promise<boolean>;
+  triggerZapierEvent: (event: string, data: Record<string, unknown>) => Promise<boolean>;
 }
 
 export const useStore = create<AppState>()(
@@ -72,6 +93,12 @@ export const useStore = create<AppState>()(
         selectedAccountId: null,
       },
       appliedChanges: [],
+      integrations: {
+        googleAnalytics: { connected: false },
+        googleTagManager: { connected: false },
+        slack: { connected: false },
+        zapier: { connected: false },
+      },
 
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       
@@ -463,6 +490,157 @@ export const useStore = create<AppState>()(
           message: 'Explore all features with sample data. Google Ads is pre-connected.',
         });
       },
+
+      // Integration actions
+      fetchIntegrations: async () => {
+        try {
+          const integrationsData = await integrations.getAllIntegrations();
+          const newState: IntegrationState = {
+            googleAnalytics: { connected: false },
+            googleTagManager: { connected: false },
+            slack: { connected: false },
+            zapier: { connected: false },
+          };
+
+          for (const integration of integrationsData) {
+            if (integration.type === 'google_analytics') {
+              newState.googleAnalytics = {
+                connected: integration.connected,
+                config: integration.config,
+                connectedAt: integration.connectedAt,
+              };
+            } else if (integration.type === 'google_tag_manager') {
+              newState.googleTagManager = {
+                connected: integration.connected,
+                config: integration.config,
+                connectedAt: integration.connectedAt,
+              };
+            } else if (integration.type === 'slack') {
+              newState.slack = {
+                connected: integration.connected,
+                config: integration.config,
+                connectedAt: integration.connectedAt,
+              };
+            } else if (integration.type === 'zapier') {
+              newState.zapier = {
+                connected: integration.connected,
+                config: integration.config,
+                connectedAt: integration.connectedAt,
+              };
+            }
+          }
+
+          set({ integrations: newState });
+        } catch (error) {
+          console.error('Failed to fetch integrations:', error);
+        }
+      },
+
+      connectGoogleAnalytics: async () => {
+        await integrations.connectGoogleAnalytics();
+      },
+
+      disconnectGoogleAnalytics: async () => {
+        const success = await integrations.disconnectGoogleAnalytics();
+        if (success) {
+          set((state) => ({
+            integrations: {
+              ...state.integrations,
+              googleAnalytics: { connected: false },
+            },
+          }));
+          get().addNotification({
+            type: 'info',
+            title: 'Google Analytics Disconnected',
+            message: 'Your Google Analytics integration has been removed.',
+          });
+        }
+      },
+
+      connectGoogleTagManager: async () => {
+        await integrations.connectGoogleTagManager();
+      },
+
+      disconnectGoogleTagManager: async () => {
+        const success = await integrations.disconnectGoogleTagManager();
+        if (success) {
+          set((state) => ({
+            integrations: {
+              ...state.integrations,
+              googleTagManager: { connected: false },
+            },
+          }));
+          get().addNotification({
+            type: 'info',
+            title: 'Google Tag Manager Disconnected',
+            message: 'Your GTM integration has been removed.',
+          });
+        }
+      },
+
+      connectSlack: async () => {
+        await integrations.connectSlack();
+      },
+
+      disconnectSlack: async () => {
+        const success = await integrations.disconnectSlack();
+        if (success) {
+          set((state) => ({
+            integrations: {
+              ...state.integrations,
+              slack: { connected: false },
+            },
+          }));
+          get().addNotification({
+            type: 'info',
+            title: 'Slack Disconnected',
+            message: 'Your Slack integration has been removed.',
+          });
+        }
+      },
+
+      saveZapierWebhook: async (webhookUrl: string) => {
+        const success = await integrations.saveZapierConfig({ webhookUrl });
+        if (success) {
+          set((state) => ({
+            integrations: {
+              ...state.integrations,
+              zapier: { connected: true, config: { webhookUrl }, connectedAt: new Date().toISOString() },
+            },
+          }));
+          get().addNotification({
+            type: 'success',
+            title: 'Zapier Connected',
+            message: 'Your Zapier webhook has been configured.',
+          });
+        }
+        return success;
+      },
+
+      disconnectZapier: async () => {
+        const success = await integrations.disconnectZapier();
+        if (success) {
+          set((state) => ({
+            integrations: {
+              ...state.integrations,
+              zapier: { connected: false },
+            },
+          }));
+          get().addNotification({
+            type: 'info',
+            title: 'Zapier Disconnected',
+            message: 'Your Zapier integration has been removed.',
+          });
+        }
+      },
+
+      sendSlackNotification: async (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
+        return await integrations.sendSlackNotification(message, type);
+      },
+
+      triggerZapierEvent: async (event: string, data: Record<string, unknown>) => {
+        return await integrations.triggerZapierEvent(event, data);
+      },
     }),
     {
       name: 'ads-optimizer-storage',
@@ -472,6 +650,7 @@ export const useStore = create<AppState>()(
         businessProfile: state.businessProfile,
         autoOptimize: state.autoOptimize,
         googleAdsConfig: state.googleAdsConfig,
+        integrations: state.integrations,
       }),
     }
   )
