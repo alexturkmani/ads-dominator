@@ -14,6 +14,24 @@ export interface GoogleAdsCredentials {
   developerToken: string;
 }
 
+export interface GoogleAdsAccount {
+  id: string;
+  customerId: string;
+  descriptiveName: string;
+  currencyCode: string;
+  timeZone: string;
+  isManager: boolean;
+  canManageClients: boolean;
+  status: 'enabled' | 'suspended' | 'cancelled' | 'pending';
+  linkedAt?: string;
+}
+
+export interface OAuthState {
+  isAuthenticating: boolean;
+  authUrl: string | null;
+  error: string | null;
+}
+
 export interface CampaignChange {
   id: string;
   campaignId: string;
@@ -36,6 +54,10 @@ export interface ApiResponse<T> {
 const GOOGLE_ADS_CONFIG = {
   apiVersion: 'v15',
   baseUrl: 'https://googleads.googleapis.com',
+  apiToken: import.meta.env.VITE_GOOGLE_ADS_API_TOKEN || '',
+  oauthClientId: import.meta.env.VITE_GOOGLE_ADS_CLIENT_ID || '',
+  oauthRedirectUri: `${window.location.origin}/oauth/callback`,
+  oauthScopes: ['https://www.googleapis.com/auth/adwords'],
   get fullUrl() { return `${this.baseUrl}/${this.apiVersion}`; }
 };
 
@@ -43,12 +65,47 @@ class GoogleAdsApiService {
   private credentials: GoogleAdsCredentials | null = null;
   private changeHistory: CampaignChange[] = [];
   private apiConfig = GOOGLE_ADS_CONFIG;
+  private apiToken: string = GOOGLE_ADS_CONFIG.apiToken;
+  private linkedAccounts: GoogleAdsAccount[] = [];
+  private selectedAccountId: string | null = null;
 
   /**
    * Initialize the service with credentials
    */
   setCredentials(credentials: GoogleAdsCredentials): void {
     this.credentials = credentials;
+  }
+
+  /**
+   * Set the API token for authentication
+   */
+  setApiToken(token: string): void {
+    this.apiToken = token;
+  }
+
+  /**
+   * Get the current API token
+   */
+  getApiToken(): string {
+    return this.apiToken;
+  }
+
+  /**
+   * Check if API token is configured
+   */
+  hasApiToken(): boolean {
+    return this.apiToken !== null && this.apiToken.length > 0;
+  }
+
+  /**
+   * Get authorization headers for API requests
+   */
+  getAuthHeaders(): Record<string, string> {
+    return {
+      'Authorization': `Bearer ${this.apiToken}`,
+      'Content-Type': 'application/json',
+      'developer-token': this.credentials?.developerToken || '',
+    };
   }
 
   /**
@@ -62,7 +119,7 @@ class GoogleAdsApiService {
    * Check if the service is properly configured
    */
   isConfigured(): boolean {
-    return this.credentials !== null;
+    return this.credentials !== null || this.hasApiToken();
   }
 
   /**
@@ -349,6 +406,296 @@ class GoogleAdsApiService {
           success: false,
           error: `Unsupported recommendation type: ${recommendation.type}`
         };
+    }
+  }
+
+  // ==========================================
+  // OAuth & Account Access Methods
+  // ==========================================
+
+  /**
+   * Generate OAuth URL for Google Ads authorization
+   */
+  getOAuthUrl(): string {
+    const params = new URLSearchParams({
+      client_id: this.apiConfig.oauthClientId,
+      redirect_uri: this.apiConfig.oauthRedirectUri,
+      response_type: 'code',
+      scope: this.apiConfig.oauthScopes.join(' '),
+      access_type: 'offline',
+      prompt: 'consent',
+      state: crypto.randomUUID(), // CSRF protection
+    });
+
+    return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  }
+
+  /**
+   * Exchange authorization code for access token
+   */
+  async exchangeCodeForToken(code: string): Promise<ApiResponse<{ accessToken: string; refreshToken: string }>> {
+    try {
+      // In production, this should be done server-side to protect client secret
+      console.log('[GoogleAdsAPI] Exchanging authorization code for tokens:', code.substring(0, 10) + '...');
+      
+      // Simulated token exchange for demo
+      // In production: POST to https://oauth2.googleapis.com/token with the code
+      const tokens = {
+        accessToken: `ya29.${crypto.randomUUID()}`,
+        refreshToken: `1//${crypto.randomUUID()}`,
+      };
+
+      this.credentials = {
+        ...this.credentials,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        customerId: '',
+        developerToken: this.apiToken,
+      } as GoogleAdsCredentials;
+
+      return { success: true, data: tokens };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to exchange code: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
+   * Fetch accessible Google Ads accounts for the authenticated user
+   */
+  async fetchAccessibleAccounts(): Promise<ApiResponse<GoogleAdsAccount[]>> {
+    if (!this.hasApiToken() && !this.credentials?.accessToken) {
+      return {
+        success: false,
+        error: 'Not authenticated. Please connect your Google account first.'
+      };
+    }
+
+    try {
+      console.log('[GoogleAdsAPI] Fetching accessible accounts');
+      
+      // In production, this would call:
+      // GET ${API_BASE_URL}/customers:listAccessibleCustomers
+      
+      // Simulated accounts for demo - represents real Google Ads account structure
+      const accounts: GoogleAdsAccount[] = [
+        {
+          id: 'acc-1',
+          customerId: '123-456-7890',
+          descriptiveName: 'Main Business Account',
+          currencyCode: 'USD',
+          timeZone: 'America/Los_Angeles',
+          isManager: false,
+          canManageClients: false,
+          status: 'enabled',
+          linkedAt: new Date().toISOString(),
+        },
+        {
+          id: 'acc-2',
+          customerId: '234-567-8901',
+          descriptiveName: 'E-commerce Store',
+          currencyCode: 'USD',
+          timeZone: 'America/New_York',
+          isManager: false,
+          canManageClients: false,
+          status: 'enabled',
+          linkedAt: new Date().toISOString(),
+        },
+        {
+          id: 'acc-3',
+          customerId: '345-678-9012',
+          descriptiveName: 'Agency Manager Account',
+          currencyCode: 'USD',
+          timeZone: 'America/Chicago',
+          isManager: true,
+          canManageClients: true,
+          status: 'enabled',
+          linkedAt: new Date().toISOString(),
+        },
+      ];
+
+      this.linkedAccounts = accounts;
+      
+      return { success: true, data: accounts };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to fetch accounts: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
+   * Get the list of linked accounts
+   */
+  getLinkedAccounts(): GoogleAdsAccount[] {
+    return this.linkedAccounts;
+  }
+
+  /**
+   * Set linked accounts (for restoring from storage)
+   */
+  setLinkedAccounts(accounts: GoogleAdsAccount[]): void {
+    this.linkedAccounts = accounts;
+  }
+
+  /**
+   * Select an account to work with
+   */
+  selectAccount(accountId: string): ApiResponse<GoogleAdsAccount> {
+    const account = this.linkedAccounts.find(a => a.id === accountId);
+    
+    if (!account) {
+      return {
+        success: false,
+        error: 'Account not found'
+      };
+    }
+
+    this.selectedAccountId = accountId;
+    
+    if (this.credentials) {
+      this.credentials.customerId = account.customerId;
+    }
+
+    console.log(`[GoogleAdsAPI] Selected account: ${account.descriptiveName} (${account.customerId})`);
+    
+    return { success: true, data: account };
+  }
+
+  /**
+   * Get the currently selected account
+   */
+  getSelectedAccount(): GoogleAdsAccount | null {
+    if (!this.selectedAccountId) return null;
+    return this.linkedAccounts.find(a => a.id === this.selectedAccountId) || null;
+  }
+
+  /**
+   * Get the selected account ID
+   */
+  getSelectedAccountId(): string | null {
+    return this.selectedAccountId;
+  }
+
+  /**
+   * Link a new Google Ads account
+   */
+  async linkAccount(customerId: string): Promise<ApiResponse<GoogleAdsAccount>> {
+    if (!this.hasApiToken() && !this.credentials?.accessToken) {
+      return {
+        success: false,
+        error: 'Not authenticated. Please connect your Google account first.'
+      };
+    }
+
+    try {
+      console.log(`[GoogleAdsAPI] Linking account: ${customerId}`);
+
+      // In production, this would verify access to the account via API
+      // GET ${API_BASE_URL}/customers/${customerId}
+
+      const newAccount: GoogleAdsAccount = {
+        id: crypto.randomUUID(),
+        customerId: customerId.replace(/-/g, ''),
+        descriptiveName: `Account ${customerId}`,
+        currencyCode: 'USD',
+        timeZone: 'America/Los_Angeles',
+        isManager: false,
+        canManageClients: false,
+        status: 'enabled',
+        linkedAt: new Date().toISOString(),
+      };
+
+      this.linkedAccounts.push(newAccount);
+
+      return { success: true, data: newAccount };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to link account: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
+   * Unlink a Google Ads account
+   */
+  unlinkAccount(accountId: string): ApiResponse<void> {
+    const index = this.linkedAccounts.findIndex(a => a.id === accountId);
+    
+    if (index === -1) {
+      return {
+        success: false,
+        error: 'Account not found'
+      };
+    }
+
+    const account = this.linkedAccounts[index];
+    this.linkedAccounts.splice(index, 1);
+
+    // If this was the selected account, clear selection
+    if (this.selectedAccountId === accountId) {
+      this.selectedAccountId = null;
+      if (this.credentials) {
+        this.credentials.customerId = '';
+      }
+    }
+
+    console.log(`[GoogleAdsAPI] Unlinked account: ${account.descriptiveName}`);
+
+    return { success: true };
+  }
+
+  /**
+   * Disconnect from Google Ads entirely
+   */
+  disconnect(): void {
+    this.credentials = null;
+    this.linkedAccounts = [];
+    this.selectedAccountId = null;
+    console.log('[GoogleAdsAPI] Disconnected from Google Ads');
+  }
+
+  /**
+   * Check if we have any linked accounts
+   */
+  hasLinkedAccounts(): boolean {
+    return this.linkedAccounts.length > 0;
+  }
+
+  /**
+   * Get account by ID
+   */
+  getAccountById(accountId: string): GoogleAdsAccount | undefined {
+    return this.linkedAccounts.find(a => a.id === accountId);
+  }
+
+  /**
+   * Refresh account data from Google Ads API
+   */
+  async refreshAccountData(accountId: string): Promise<ApiResponse<GoogleAdsAccount>> {
+    const account = this.getAccountById(accountId);
+    
+    if (!account) {
+      return {
+        success: false,
+        error: 'Account not found'
+      };
+    }
+
+    try {
+      // In production, this would fetch fresh data from the API
+      console.log(`[GoogleAdsAPI] Refreshing data for account: ${account.descriptiveName}`);
+      
+      return { success: true, data: account };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to refresh account: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
     }
   }
 }

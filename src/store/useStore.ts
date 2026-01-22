@@ -2,12 +2,14 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Campaign, DashboardMetrics, AIRecommendation, User, BusinessProfile, Notification } from '../types'
 import { mockCampaigns, mockMetrics, mockRecommendations } from '../data/mockData'
-import { googleAdsApi, CampaignChange } from '../services/googleAdsApi'
+import { googleAdsApi, CampaignChange, GoogleAdsAccount } from '../services/googleAdsApi'
 
 interface GoogleAdsConfig {
   isConnected: boolean;
   customerId: string;
   autoApplyHighConfidence: boolean;
+  linkedAccounts: GoogleAdsAccount[];
+  selectedAccountId: string | null;
 }
 
 interface AppState {
@@ -40,6 +42,12 @@ interface AppState {
   logout: () => void;
   setGoogleAdsConfig: (config: Partial<GoogleAdsConfig>) => void;
   applyRecommendationToGoogleAds: (id: string, confidence: number) => Promise<boolean>;
+  connectGoogleAds: () => Promise<boolean>;
+  disconnectGoogleAds: () => void;
+  fetchGoogleAdsAccounts: () => Promise<GoogleAdsAccount[]>;
+  selectGoogleAdsAccount: (accountId: string) => void;
+  linkGoogleAdsAccount: (customerId: string) => Promise<boolean>;
+  unlinkGoogleAdsAccount: (accountId: string) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -59,6 +67,8 @@ export const useStore = create<AppState>()(
         isConnected: false,
         customerId: '',
         autoApplyHighConfidence: true,
+        linkedAccounts: [],
+        selectedAccountId: null,
       },
       appliedChanges: [],
 
@@ -188,6 +198,176 @@ export const useStore = create<AppState>()(
             message: result.error || 'An unknown error occurred',
           });
           return false;
+        }
+      },
+
+      /**
+       * Connect to Google Ads via OAuth
+       */
+      connectGoogleAds: async () => {
+        try {
+          // In a real app, this would open OAuth popup/redirect
+          // For demo, we simulate successful connection
+          console.log('[Store] Initiating Google Ads connection');
+          
+          // Fetch available accounts
+          const result = await googleAdsApi.fetchAccessibleAccounts();
+          
+          if (result.success && result.data) {
+            set((state) => ({
+              googleAdsConfig: {
+                ...state.googleAdsConfig,
+                isConnected: true,
+                linkedAccounts: result.data!,
+              },
+            }));
+
+            get().addNotification({
+              type: 'success',
+              title: 'Google Ads Connected',
+              message: `Successfully connected! Found ${result.data.length} accessible accounts.`,
+            });
+
+            return true;
+          } else {
+            get().addNotification({
+              type: 'error',
+              title: 'Connection Failed',
+              message: result.error || 'Failed to connect to Google Ads',
+            });
+            return false;
+          }
+        } catch (error) {
+          get().addNotification({
+            type: 'error',
+            title: 'Connection Error',
+            message: error instanceof Error ? error.message : 'Unknown error occurred',
+          });
+          return false;
+        }
+      },
+
+      /**
+       * Disconnect from Google Ads
+       */
+      disconnectGoogleAds: () => {
+        googleAdsApi.disconnect();
+        set((state) => ({
+          googleAdsConfig: {
+            ...state.googleAdsConfig,
+            isConnected: false,
+            customerId: '',
+            linkedAccounts: [],
+            selectedAccountId: null,
+          },
+        }));
+
+        get().addNotification({
+          type: 'info',
+          title: 'Google Ads Disconnected',
+          message: 'Your Google Ads account has been disconnected.',
+        });
+      },
+
+      /**
+       * Fetch Google Ads accounts
+       */
+      fetchGoogleAdsAccounts: async () => {
+        const result = await googleAdsApi.fetchAccessibleAccounts();
+        
+        if (result.success && result.data) {
+          set((state) => ({
+            googleAdsConfig: {
+              ...state.googleAdsConfig,
+              linkedAccounts: result.data!,
+            },
+          }));
+          return result.data;
+        }
+        
+        return [];
+      },
+
+      /**
+       * Select a Google Ads account to work with
+       */
+      selectGoogleAdsAccount: (accountId: string) => {
+        const result = googleAdsApi.selectAccount(accountId);
+        
+        if (result.success && result.data) {
+          set((state) => ({
+            googleAdsConfig: {
+              ...state.googleAdsConfig,
+              selectedAccountId: accountId,
+              customerId: result.data!.customerId,
+            },
+          }));
+
+          get().addNotification({
+            type: 'success',
+            title: 'Account Selected',
+            message: `Now managing: ${result.data.descriptiveName}`,
+          });
+        }
+      },
+
+      /**
+       * Link a new Google Ads account by Customer ID
+       */
+      linkGoogleAdsAccount: async (customerId: string) => {
+        const result = await googleAdsApi.linkAccount(customerId);
+        
+        if (result.success && result.data) {
+          set((state) => ({
+            googleAdsConfig: {
+              ...state.googleAdsConfig,
+              linkedAccounts: [...state.googleAdsConfig.linkedAccounts, result.data!],
+            },
+          }));
+
+          get().addNotification({
+            type: 'success',
+            title: 'Account Linked',
+            message: `Successfully linked account: ${customerId}`,
+          });
+
+          return true;
+        } else {
+          get().addNotification({
+            type: 'error',
+            title: 'Failed to Link Account',
+            message: result.error || 'Unknown error occurred',
+          });
+          return false;
+        }
+      },
+
+      /**
+       * Unlink a Google Ads account
+       */
+      unlinkGoogleAdsAccount: (accountId: string) => {
+        const account = googleAdsApi.getAccountById(accountId);
+        const result = googleAdsApi.unlinkAccount(accountId);
+        
+        if (result.success) {
+          set((state) => ({
+            googleAdsConfig: {
+              ...state.googleAdsConfig,
+              linkedAccounts: state.googleAdsConfig.linkedAccounts.filter(a => a.id !== accountId),
+              selectedAccountId: state.googleAdsConfig.selectedAccountId === accountId 
+                ? null 
+                : state.googleAdsConfig.selectedAccountId,
+              customerId: state.googleAdsConfig.selectedAccountId === accountId 
+                ? '' 
+                : state.googleAdsConfig.customerId,
+            },
+          }));
+
+          get().addNotification({
+            type: 'info',
+            title: 'Account Unlinked',
+            message: `Removed account: ${account?.descriptiveName || accountId}`,
+          });
         }
       },
     }),
