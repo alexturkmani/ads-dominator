@@ -61,7 +61,8 @@ export interface GoogleAdsAccount {
   timeZone: string;
   isManager: boolean;
   canManageClients: boolean;
-  status: string;
+  status: 'enabled' | 'suspended' | 'cancelled' | 'pending';
+  linkedAt?: string;
 }
 
 export interface Campaign {
