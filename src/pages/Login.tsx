@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, Mail, Lock, Eye, EyeOff, ArrowRight, X, CheckCircle } from 'lucide-react'
+import { Zap, Mail, Lock, Eye, EyeOff, ArrowRight, X, CheckCircle, Play } from 'lucide-react'
 import { useStore } from '../store/useStore'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { setUser } = useStore()
+  const { setUser, startDemo } = useStore()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -184,22 +184,15 @@ export default function Login() {
         </div>
 
         <div className="mt-6 p-4 rounded-xl glass text-center">
-          <p className="text-dark-400 text-sm mb-2">Want to explore the dashboard?</p>
+          <p className="text-dark-400 text-sm mb-3">Want to explore the dashboard?</p>
           <button
             onClick={() => {
-              setUser({
-                id: 'demo',
-                email: 'demo@adsdominator.com',
-                name: 'Demo User',
-                company: 'Demo Company',
-                plan: 'pro',
-                createdAt: new Date().toISOString(),
-              })
+              startDemo()
               navigate('/dashboard')
             }}
-            className="text-primary-400 hover:text-primary-300 font-medium"
+            className="btn-secondary flex items-center justify-center gap-2 w-full"
           >
-                      Enter Demo Mode →
+            <Play className="w-4 h-4" /> Try Interactive Demo
           </button>
         </div>
       </motion.div>

@@ -48,6 +48,7 @@ interface AppState {
   selectGoogleAdsAccount: (accountId: string) => void;
   linkGoogleAdsAccount: (customerId: string) => Promise<boolean>;
   unlinkGoogleAdsAccount: (accountId: string) => void;
+  startDemo: () => void;
 }
 
 export const useStore = create<AppState>()(
@@ -369,6 +370,97 @@ export const useStore = create<AppState>()(
             message: `Removed account: ${account?.descriptiveName || accountId}`,
           });
         }
+      },
+
+      /**
+       * Start demo mode with pre-configured data
+       */
+      startDemo: () => {
+        // Set demo user
+        set({
+          user: {
+            id: 'demo-user',
+            email: 'demo@adsdominator.com',
+            name: 'Demo User',
+            company: 'Demo Company',
+            plan: 'pro',
+            createdAt: new Date().toISOString(),
+          },
+          isAuthenticated: true,
+          businessProfile: {
+            id: 'demo-profile',
+            businessName: 'Demo E-commerce Store',
+            websiteUrl: 'https://demo-store.com',
+            industry: 'E-commerce',
+            businessType: 'Online Retail',
+            targetLocations: ['United States', 'Canada', 'United Kingdom'],
+            monthlyBudget: 5000,
+            goals: ['Increase Sales', 'Lower CPA', 'Improve ROAS'],
+          },
+          googleAdsConfig: {
+            isConnected: true,
+            customerId: '123-456-7890',
+            autoApplyHighConfidence: true,
+            linkedAccounts: [
+              {
+                id: 'demo-acc-1',
+                customerId: '123-456-7890',
+                descriptiveName: 'Demo E-commerce Store',
+                currencyCode: 'USD',
+                timeZone: 'America/Los_Angeles',
+                isManager: false,
+                canManageClients: false,
+                status: 'enabled',
+                linkedAt: new Date().toISOString(),
+              },
+              {
+                id: 'demo-acc-2',
+                customerId: '234-567-8901',
+                descriptiveName: 'Demo Brand Campaigns',
+                currencyCode: 'USD',
+                timeZone: 'America/New_York',
+                isManager: false,
+                canManageClients: false,
+                status: 'enabled',
+                linkedAt: new Date().toISOString(),
+              },
+            ],
+            selectedAccountId: 'demo-acc-1',
+          },
+        });
+
+        // Sync with API service
+        googleAdsApi.setLinkedAccounts([
+          {
+            id: 'demo-acc-1',
+            customerId: '123-456-7890',
+            descriptiveName: 'Demo E-commerce Store',
+            currencyCode: 'USD',
+            timeZone: 'America/Los_Angeles',
+            isManager: false,
+            canManageClients: false,
+            status: 'enabled',
+            linkedAt: new Date().toISOString(),
+          },
+          {
+            id: 'demo-acc-2',
+            customerId: '234-567-8901',
+            descriptiveName: 'Demo Brand Campaigns',
+            currencyCode: 'USD',
+            timeZone: 'America/New_York',
+            isManager: false,
+            canManageClients: false,
+            status: 'enabled',
+            linkedAt: new Date().toISOString(),
+          },
+        ]);
+        googleAdsApi.selectAccount('demo-acc-1');
+
+        get().addNotification({
+          type: 'success',
+          title: 'Welcome to Demo Mode!',
+          message: 'Explore all features with sample data. Google Ads is pre-connected.',
+        });
       },
     }),
     {

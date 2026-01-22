@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { 
   Zap, Target, BarChart3, Brain, DollarSign, 
   ChevronRight, Check, ArrowRight, Sparkles,
   LineChart, Rocket, Play, Star, Menu, X
 } from 'lucide-react'
+import { useStore } from '../store/useStore'
 
 const features = [
   {
@@ -105,6 +106,13 @@ const faqs = [
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const navigate = useNavigate()
+  const { startDemo } = useStore()
+
+  const handleTryDemo = () => {
+    startDemo()
+    navigate('/dashboard')
+  }
   
   return (
     <div className="min-h-screen bg-dark-950">
@@ -196,8 +204,11 @@ export default function LandingPage() {
               <Link to="/onboarding" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center">
                 Start Optimizing Now <Rocket className="w-5 h-5 inline ml-2" />
               </Link>
-              <button className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 flex items-center justify-center gap-2 w-full sm:w-auto">
-                <Play className="w-5 h-5" /> Watch Demo
+              <button 
+                onClick={handleTryDemo}
+                className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 flex items-center justify-center gap-2 w-full sm:w-auto"
+              >
+                <Play className="w-5 h-5" /> Try Interactive Demo
               </button>
             </div>
 
