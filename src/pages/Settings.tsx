@@ -1,12 +1,13 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   User, Building2, CreditCard, Bell, Lock, Link2,
-  Save, Trash2, Check, ExternalLink, Search, X, RefreshCw, Plus, LogOut
+  Save, Trash2, Check, ExternalLink, Search, X, RefreshCw, Plus, LogOut, AlertCircle
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { useStore } from '../store/useStore'
 import { businessCategories, searchBusinessTypes } from '../data/businessTypes'
+import * as googleAdsBackend from '../services/googleAdsBackend'
 
 const tabs = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -38,6 +39,61 @@ export default function Settings() {
   const [showAddAccountModal, setShowAddAccountModal] = useState(false)
   const [newCustomerId, setNewCustomerId] = useState('')
   const [isLinkingAccount, setIsLinkingAccount] = useState(false)
+  const [useRealApi, setUseRealApi] = useState(false)
+  const [apiHealthy, setApiHealthy] = useState<boolean | null>(null)
+  const [oauthError, setOauthError] = useState<string | null>(null)
+  
+  // Check for OAuth callback and API health on mount
+  useEffect(() => {
+    // Handle OAuth callback
+    const callbackResult = googleAdsBackend.handleOAuthCallback()
+    if (callbackResult.connected) {
+      // Successfully connected via real OAuth
+      setUseRealApi(true)
+      fetchRealAccounts()
+    } else if (callbackResult.error) {
+      setOauthError(callbackResult.error)
+    }
+
+    // Check API health
+    googleAdsBackend.checkHealth().then((health) => {
+      if (health) {
+        setApiHealthy(health.configured)
+      }
+    }).catch(() => {
+      setApiHealthy(false)
+    })
+  }, [])
+
+  // Fetch accounts from real API
+  const fetchRealAccounts = async () => {
+    try {
+      const accounts = await googleAdsBackend.fetchAccounts()
+      if (accounts.length > 0) {
+        setGoogleAdsConfig({
+          isConnected: true,
+          linkedAccounts: accounts,
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching accounts:', error)
+    }
+  }
+
+  // Connect using real OAuth
+  const handleRealConnect = async () => {
+    setIsConnecting(true)
+    setOauthError(null)
+    await googleAdsBackend.initiateOAuth()
+    // Page will redirect to Google OAuth
+  }
+
+  // Disconnect from real API
+  const handleRealDisconnect = async () => {
+    await googleAdsBackend.disconnect()
+    setUseRealApi(false)
+    disconnectGoogleAds()
+  }
   
   const [profile, setProfile] = useState({
     name: user?.name || 'Demo User',
@@ -335,6 +391,23 @@ export default function Settings() {
       case 'integrations':
         return (
           <div className="space-y-6">
+            {/* OAuth Error Alert */}
+            {oauthError && (
+              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-red-400" />
+                <div>
+                  <div className="text-red-400 font-medium">Connection Failed</div>
+                  <div className="text-red-400/70 text-sm">{oauthError}</div>
+                </div>
+                <button 
+                  onClick={() => setOauthError(null)}
+                  className="ml-auto text-red-400 hover:text-red-300"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
             {/* Google Ads Integration - Primary */}
             <div className="p-6 rounded-xl bg-gradient-to-r from-blue-500/10 to-green-500/10 border border-blue-500/20">
               <div className="flex items-center justify-between mb-4">
@@ -351,37 +424,68 @@ export default function Settings() {
                     <h3 className="text-lg font-semibold text-white">Google Ads</h3>
                     <p className="text-dark-400">
                       {googleAdsConfig.isConnected 
-                        ? `${googleAdsConfig.linkedAccounts.length} account(s) connected`
+                        ? `${googleAdsConfig.linkedAccounts.length} account(s) connected${useRealApi ? '' : ' (Demo Mode)'}`
                         : 'Connect your Google Ads account to enable AI optimization'}
                     </p>
                   </div>
                 </div>
                 {googleAdsConfig.isConnected ? (
-                  <span className="badge badge-success flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Connected
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`badge ${useRealApi ? 'badge-success' : 'bg-amber-500/20 text-amber-400'} flex items-center gap-1`}>
+                      <Check className="w-3 h-3" /> {useRealApi ? 'Connected' : 'Demo'}
+                    </span>
+                  </div>
                 ) : (
-                  <button 
-                    onClick={async () => {
-                      setIsConnecting(true);
-                      await connectGoogleAds();
-                      setIsConnecting(false);
-                    }}
-                    disabled={isConnecting}
-                    className="btn-primary flex items-center gap-2"
-                  >
-                    {isConnecting ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" /> Connecting...
-                      </>
-                    ) : (
-                      <>
-                        <Link2 className="w-4 h-4" /> Connect Account
-                      </>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    {apiHealthy && (
+                      <button 
+                        onClick={handleRealConnect}
+                        disabled={isConnecting}
+                        className="btn-primary flex items-center gap-2"
+                      >
+                        {isConnecting ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" /> Connecting...
+                          </>
+                        ) : (
+                          <>
+                            <Link2 className="w-4 h-4" /> Connect Real Account
+                          </>
+                        )}
+                      </button>
                     )}
-                  </button>
+                    <button 
+                      onClick={async () => {
+                        setIsConnecting(true);
+                        await connectGoogleAds();
+                        setIsConnecting(false);
+                      }}
+                      disabled={isConnecting}
+                      className="btn-secondary flex items-center gap-2"
+                    >
+                      {isConnecting && !apiHealthy ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" /> Connecting...
+                        </>
+                      ) : (
+                        <>
+                          <ExternalLink className="w-4 h-4" /> {apiHealthy ? 'Use Demo Mode' : 'Try Demo Mode'}
+                        </>
+                      )}
+                    </button>
+                  </div>
                 )}
               </div>
+
+              {/* API Status Banner */}
+              {!googleAdsConfig.isConnected && apiHealthy === false && (
+                <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <div className="flex items-center gap-2 text-amber-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Backend server not running. Start it with: <code className="px-1 py-0.5 rounded bg-dark-700">cd server && npm install && npm run dev</code></span>
+                  </div>
+                </div>
+              )}
 
               {googleAdsConfig.isConnected && (
                 <>
@@ -488,7 +592,7 @@ export default function Settings() {
                   {/* Disconnect Button */}
                   <div className="mt-4 pt-4 border-t border-dark-700">
                     <button
-                      onClick={disconnectGoogleAds}
+                      onClick={useRealApi ? handleRealDisconnect : disconnectGoogleAds}
                       className="text-red-400 hover:text-red-300 text-sm flex items-center gap-1"
                     >
                       <LogOut className="w-4 h-4" /> Disconnect Google Ads
