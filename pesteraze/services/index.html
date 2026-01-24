@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pest Control Services Sydney | All Pest Types | Pest Eraze</title>
+  <meta name="description" content="Complete pest control services in Sydney. Termites, cockroaches, rodents, bed bugs, ants, spiders & more. Licensed technicians, guaranteed results. Call 0416 528 547.">
+  <meta name="keywords" content="pest control services Sydney, exterminator services, termite treatment, cockroach removal, rodent control, bed bug treatment, ant control, spider removal">
+  <link rel="canonical" href="https://www.pesteraze.com.au/services/">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Pest Control Services Sydney | Pest Eraze">
+  <meta property="og:description" content="Complete pest control services in Sydney. All pest types covered with guaranteed results.">
+  <meta property="og:url" content="https://www.pesteraze.com.au/services/">
+  <meta property="og:type" content="website">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Service Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Pest Control Services",
+    "description": "Complete pest control services offered by Pest Eraze in Sydney",
+    "numberOfItems": 10,
+    "itemListElement": [
+      {
+        "@type": "Service",
+        "position": 1,
+        "name": "Termite Inspection & Treatment",
+        "url": "https://www.pesteraze.com.au/services/termite-inspection/",
+        "provider": {"@type": "PestControlService", "name": "Pest Eraze"}
+      },
+      {
+        "@type": "Service",
+        "position": 2,
+        "name": "Cockroach Removal",
+        "url": "https://www.pesteraze.com.au/services/cockroach-removal/",
+        "provider": {"@type": "PestControlService", "name": "Pest Eraze"}
+      },
+      {
+        "@type": "Service",
+        "position": 3,
+        "name": "Rodent Control",
+        "url": "https://www.pesteraze.com.au/services/rodent-control/",
+        "provider": {"@type": "PestControlService", "name": "Pest Eraze"}
+      },
+      {
+        "@type": "Service",
+        "position": 4,
+        "name": "Bed Bug Treatment",
+        "url": "https://www.pesteraze.com.au/services/bed-bug-treatment/",
+        "provider": {"@type": "PestControlService", "name": "Pest Eraze"}
+      },
+      {
+        "@type": "Service",
+        "position": 5,
+        "name": "Ant Control",
+        "url": "https://www.pesteraze.com.au/services/ant-control/",
+        "provider": {"@type": "PestControlService", "name": "Pest Eraze"}
+      }
+    ]
+  }
+  </script>
+  
+  <style>
+    :root {
+      --primary: #0f172a;
+      --secondary: #60A5FA;
+      --accent: #FBBF24;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --white: #ffffff;
+      --gray-100: #f1f5f9;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); line-height: 1.6; }
+    a { color: var(--secondary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    
+    header { background: var(--primary); padding: 15px 0; }
+    .header-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+    .logo { font-size: 28px; font-weight: 900; color: var(--white); }
+    .logo span { color: var(--secondary); }
+    nav ul { display: flex; list-style: none; gap: 25px; }
+    nav a { color: var(--white); font-weight: 500; }
+    nav a:hover { color: var(--accent); text-decoration: none; }
+    .btn-primary { background: var(--accent); color: var(--primary); padding: 12px 24px; border-radius: 8px; font-weight: 700; }
+    
+    .breadcrumb { background: var(--gray-100); padding: 15px 0; font-size: 14px; }
+    .breadcrumb a { color: var(--text-light); }
+    .breadcrumb span { color: var(--text); }
+    
+    .page-header { background: linear-gradient(135deg, var(--primary) 0%, #1e3a5f 100%); color: var(--white); padding: 60px 0; text-align: center; }
+    .page-header h1 { font-size: 42px; margin-bottom: 15px; }
+    .page-header p { font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+    
+    .services-section { padding: 60px 0; }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+    
+    .service-card { background: var(--white); border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
+    .service-card:hover { transform: translateY(-5px); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+    .service-image { height: 200px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 60px; }
+    .service-content { padding: 25px; }
+    .service-content h2 { font-size: 22px; margin-bottom: 10px; }
+    .service-content h2 a { color: var(--primary); }
+    .service-content h2 a:hover { color: var(--secondary); }
+    .service-content p { color: var(--text-light); margin-bottom: 15px; }
+    .service-content ul { list-style: none; margin-bottom: 20px; }
+    .service-content li { padding: 5px 0; padding-left: 25px; position: relative; color: var(--text-light); }
+    .service-content li::before { content: "✓"; position: absolute; left: 0; color: var(--secondary); font-weight: bold; }
+    .service-link { color: var(--secondary); font-weight: 600; }
+    
+    .related-services { background: var(--gray-100); padding: 60px 0; }
+    .related-services h2 { text-align: center; font-size: 28px; margin-bottom: 30px; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .related-link { background: var(--white); padding: 20px; border-radius: 8px; text-align: center; color: var(--text); font-weight: 500; transition: background 0.3s; }
+    .related-link:hover { background: var(--secondary); color: var(--white); text-decoration: none; }
+    
+    .cta-section { background: var(--secondary); padding: 50px 0; text-align: center; color: var(--white); }
+    .cta-section h2 { font-size: 32px; margin-bottom: 15px; }
+    .cta-section .btn-primary { background: var(--white); color: var(--secondary); }
+    
+    footer { background: var(--primary); color: var(--white); padding: 40px 0 20px; }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; margin-bottom: 30px; }
+    .footer-col h4 { color: var(--accent); margin-bottom: 15px; }
+    .footer-col ul { list-style: none; }
+    .footer-col a { color: rgba(255,255,255,0.7); }
+    .footer-col a:hover { color: var(--white); }
+    .footer-col li { margin-bottom: 8px; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; text-align: center; color: rgba(255,255,255,0.5); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-content">
+      <a href="/" class="logo">PEST<span>ERAZE</span></a>
+      <nav>
+        <ul>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/areas/">Areas</a></li>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/contact/">Contact</a></li>
+        </ul>
+      </nav>
+      <a href="tel:0416528547" class="btn-primary">📞 0416 528 547</a>
+    </div>
+  </header>
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <div class="container">
+      <a href="/">Home</a> › <span>Services</span>
+    </div>
+  </nav>
+
+  <section class="page-header">
+    <div class="container">
+      <h1>Our Pest Control Services</h1>
+      <p>Complete pest management solutions for homes and businesses across Sydney. All services come with our satisfaction guarantee.</p>
+    </div>
+  </section>
+
+  <main class="services-section">
+    <div class="container">
+      <div class="services-grid">
+        
+        <article class="service-card">
+          <div class="service-image">🐜</div>
+          <div class="service-content">
+            <h2><a href="/services/termite-inspection/">Termite Inspection & Treatment</a></h2>
+            <p>Comprehensive termite management including detection, treatment, and prevention. Protect your property from Australia's most destructive pest.</p>
+            <ul>
+              <li>Thermal imaging inspections</li>
+              <li>Termite barrier systems</li>
+              <li>Baiting programs</li>
+              <li>Annual inspection reports</li>
+            </ul>
+            <a href="/services/termite-inspection/" class="service-link">Learn more about termite control →</a>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <div class="service-image">🪳</div>
+          <div class="service-content">
+            <h2><a href="/services/cockroach-removal/">Cockroach Removal</a></h2>
+            <p>Eliminate cockroach infestations with targeted treatment programs. Effective against German, American, and Australian cockroaches.</p>
+            <ul>
+              <li>Gel bait applications</li>
+              <li>Crack and crevice treatment</li>
+              <li>Commercial kitchen treatments</li>
+              <li>Ongoing prevention plans</li>
+            </ul>
+            <a href="/services/cockroach-removal/" class="service-link">Learn more about cockroach control →</a>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <div class="service-image">🐀</div>
+          <div class="service-content">
+            <h2><a href="/services/rodent-control/">Rodent Control</a></h2>
+            <p>Professional rat and mouse control services. Complete elimination and prevention of rodent infestations in homes and businesses.</p>
+            <ul>
+              <li>Entry point identification</li>
+              <li>Safe baiting systems</li>
+              <li>Trapping programs</li>
+              <li>Exclusion services</li>
+            </ul>
+            <a href="/services/rodent-control/" class="service-link">Learn more about rodent removal →</a>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <div class="service-image">🛏️</div>
+          <div class="service-content">
+            <h2><a href="/services/bed-bug-treatment/">Bed Bug Treatment</a></h2>
+            <p>Comprehensive bed bug elimination using heat treatment and targeted applications. 100% success rate guaranteed.</p>
+            <ul>
+              <li>Heat treatment available</li>
+              <li>Chemical treatment options</li>
+              <li>Mattress encasements</li>
+              <li>Follow-up inspections</li>
+            </ul>
+            <a href="/services/bed-bug-treatment/" class="service-link">Learn more about bed bug removal →</a>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <div class="service-image">🐜</div>
+          <div class="service-content">
+            <h2><a href="/services/ant-control/">Ant Control</a></h2>
+            <p>Effective ant control for all species including black ants, white ants (termites), and carpenter ants. Colony elimination guaranteed.</p>
+            <ul>
+              <li>Colony location</li>
+              <li>Bait systems</li>
+              <li>Perimeter treatments</li>
+              <li>Garden ant control</li>
+            </ul>
+            <a href="/services/ant-control/" class="service-link">Learn more about ant treatment →</a>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <div class="service-image">🕷️</div>
+          <div class="service-content">
+            <h2><a href="/services/spider-removal/">Spider Removal</a></h2>
+            <p>Safe spider control for homes and businesses. Treatment for all species including dangerous redbacks and funnel-web spiders.</p>
+            <ul>
+              <li>Web removal</li>
+              <li>Residual treatments</li>
+              <li>Dangerous spider removal</li>
+              <li>Preventive barriers</li>
+            </ul>
+            <a href="/services/spider-removal/" class="service-link">Learn more about spider control →</a>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <div class="service-image">🐕</div>
+          <div class="service-content">
+            <h2><a href="/services/flea-treatment/">Flea Treatment</a></h2>
+            <p>Complete flea elimination for homes with pets. Treat carpets, furniture, and outdoor areas for lasting relief.</p>
+            <ul>
+              <li>Interior treatments</li>
+              <li>Yard treatments</li>
+              <li>Pet-safe options</li>
+              <li>Follow-up visits included</li>
+            </ul>
+            <a href="/services/flea-treatment/" class="service-link">Learn more about flea control →</a>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <div class="service-image">🐝</div>
+          <div class="service-content">
+            <h2><a href="/services/wasp-removal/">Wasp & Bee Removal</a></h2>
+            <p>Safe removal of wasp nests and bee hives. Emergency same-day service available for dangerous situations.</p>
+            <ul>
+              <li>Nest location</li>
+              <li>Safe removal</li>
+              <li>European wasp control</li>
+              <li>Bee relocation options</li>
+            </ul>
+            <a href="/services/wasp-removal/" class="service-link">Learn more about wasp removal →</a>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <div class="service-image">🏢</div>
+          <div class="service-content">
+            <h2><a href="/services/commercial-pest-control/">Commercial Pest Control</a></h2>
+            <p>Tailored pest management for restaurants, offices, warehouses, and retail. HACCP compliant services available.</p>
+            <ul>
+              <li>Restaurant pest control</li>
+              <li>Office pest management</li>
+              <li>Warehouse services</li>
+              <li>Regular maintenance contracts</li>
+            </ul>
+            <a href="/services/commercial-pest-control/" class="service-link">Learn more about commercial services →</a>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <div class="service-image">🏠</div>
+          <div class="service-content">
+            <h2><a href="/services/pre-purchase-inspections/">Pre-Purchase Pest Inspections</a></h2>
+            <p>Comprehensive pest inspections for property buyers. Detailed reports on termite activity, damage, and risk factors.</p>
+            <ul>
+              <li>Detailed written reports</li>
+              <li>Thermal imaging included</li>
+              <li>Fast turnaround</li>
+              <li>Negotiating leverage</li>
+            </ul>
+            <a href="/services/pre-purchase-inspections/" class="service-link">Learn more about property inspections →</a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </main>
+
+  <section class="related-services">
+    <div class="container">
+      <h2>Browse by Pest Type</h2>
+      <div class="related-grid">
+        <a href="/pests/termites/" class="related-link">Termites</a>
+        <a href="/pests/cockroaches/" class="related-link">Cockroaches</a>
+        <a href="/pests/rats/" class="related-link">Rats</a>
+        <a href="/pests/mice/" class="related-link">Mice</a>
+        <a href="/pests/bed-bugs/" class="related-link">Bed Bugs</a>
+        <a href="/pests/ants/" class="related-link">Ants</a>
+        <a href="/pests/spiders/" class="related-link">Spiders</a>
+        <a href="/pests/fleas/" class="related-link">Fleas</a>
+        <a href="/pests/wasps/" class="related-link">Wasps</a>
+        <a href="/pests/silverfish/" class="related-link">Silverfish</a>
+        <a href="/pests/moths/" class="related-link">Moths</a>
+        <a href="/pests/possums/" class="related-link">Possums</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <h2>Need Pest Control Today?</h2>
+      <p>Same-day service available across Sydney</p>
+      <a href="/contact/" class="btn-primary">Get Free Quote</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="/services/termite-inspection/">Termite Inspection</a></li>
+            <li><a href="/services/cockroach-removal/">Cockroach Removal</a></li>
+            <li><a href="/services/rodent-control/">Rodent Control</a></li>
+            <li><a href="/services/bed-bug-treatment/">Bed Bug Treatment</a></li>
+            <li><a href="/services/commercial-pest-control/">Commercial</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Areas</h4>
+          <ul>
+            <li><a href="/areas/sydney-cbd/">Sydney CBD</a></li>
+            <li><a href="/areas/north-sydney/">North Sydney</a></li>
+            <li><a href="/areas/eastern-suburbs/">Eastern Suburbs</a></li>
+            <li><a href="/areas/parramatta/">Parramatta</a></li>
+            <li><a href="/areas/">All Areas</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="/blog/">Blog</a></li>
+            <li><a href="/faq/">FAQ</a></li>
+            <li><a href="/resources/pest-identification/">Pest ID Guide</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:0416528547">0416 528 547</a></li>
+            <li><a href="mailto:contact@pesteraze.com.au">Email Us</a></li>
+            <li><a href="/contact/">Contact Form</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Pest Eraze | <a href="/privacy-policy/">Privacy</a> | <a href="/terms/">Terms</a> | <a href="/sitemap.xml">Sitemap</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.pesteraze.com.au/"},
+      {"@type": "ListItem", "position": 2, "name": "Services", "item": "https://www.pesteraze.com.au/services/"}
+    ]
+  }
+  </script>
+</body>
+</html>

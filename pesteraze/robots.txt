@@ -1,0 +1,26 @@
+# Robots.txt for Pest Eraze
+# https://www.pesteraze.com.au
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.pesteraze.com.au/sitemap.xml
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /tmp/
+
+# Allow crawlers to access all public content for SEO
+# Including images, CSS, and JavaScript for proper rendering
