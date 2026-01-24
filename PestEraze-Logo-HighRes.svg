@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 150" width="2640" height="600">
+  <defs>
+    <!-- Define the Inter font family for text rendering -->
+    <style type="text/css">
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&amp;display=swap');
+      .pest-text { 
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+        font-weight: 900; 
+        font-size: 96px;
+        letter-spacing: -2px;
+      }
+      .white { fill: #FFFFFF; }
+      .blue { fill: #60A5FA; }
+    </style>
+  </defs>
+  
+  <!-- Background - transparent by default, uncomment for dark background -->
+  <!-- <rect width="100%" height="100%" fill="#0f172a"/> -->
+  
+  <!-- PEST text - White -->
+  <text x="30" y="110" class="pest-text white">PEST</text>
+  
+  <!-- ERAZE text - Blue -->
+  <text x="295" y="110" class="pest-text blue">ERAZE</text>
+</svg>

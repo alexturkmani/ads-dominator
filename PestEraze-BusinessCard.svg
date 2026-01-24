@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Business Card Layout - 3.5" x 2" at 300 DPI = 1050 x 600 pixels -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 600" width="1050" height="600">
+  <defs>
+    <style type="text/css">
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap');
+      .logo-pest { 
+        font-family: 'Inter', sans-serif; 
+        font-weight: 900; 
+        font-size: 64px;
+        letter-spacing: -1px;
+        fill: #FFFFFF;
+      }
+      .logo-eraze { 
+        font-family: 'Inter', sans-serif; 
+        font-weight: 900; 
+        font-size: 64px;
+        letter-spacing: -1px;
+        fill: #60A5FA;
+      }
+      .tagline {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 2px;
+        fill: #FBBF24;
+      }
+      .contact-label {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 12px;
+        fill: #94a3b8;
+      }
+      .contact-info {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        fill: #FFFFFF;
+      }
+      .service-text {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 11px;
+        fill: #cbd5e1;
+        letter-spacing: 0.5px;
+      }
+    </style>
+    <!-- Gradient for accent -->
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#fb923c"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Dark background -->
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  
+  <!-- Accent stripe -->
+  <rect x="0" y="0" width="8" height="600" fill="url(#accentGradient)"/>
+  
+  <!-- Logo -->
+  <text x="60" y="120" class="logo-pest">PEST</text>
+  <text x="245" y="120" class="logo-eraze">ERAZE</text>
+  
+  <!-- Tagline -->
+  <text x="60" y="155" class="tagline">FAST | EFFECTIVE | GUARANTEED</text>
+  
+  <!-- Divider line -->
+  <line x1="60" y1="200" x2="400" y2="200" stroke="#334155" stroke-width="1"/>
+  
+  <!-- Contact Information -->
+  <text x="60" y="260" class="contact-label">PHONE</text>
+  <text x="60" y="285" class="contact-info">0416 528 547</text>
+  
+  <text x="60" y="340" class="contact-label">EMAIL</text>
+  <text x="60" y="365" class="contact-info">contact@pesteraze.com.au</text>
+  
+  <text x="60" y="420" class="contact-label">WEBSITE</text>
+  <text x="60" y="445" class="contact-info">www.pesteraze.com.au</text>
+  
+  <!-- Services on right side -->
+  <text x="600" y="260" class="contact-label">SERVICES</text>
+  <text x="600" y="290" class="service-text">• Termite Control &amp; Inspections</text>
+  <text x="600" y="315" class="service-text">• Cockroach &amp; Ant Treatment</text>
+  <text x="600" y="340" class="service-text">• Rodent Control</text>
+  <text x="600" y="365" class="service-text">• Bed Bug Elimination</text>
+  <text x="600" y="390" class="service-text">• Spider &amp; Wasp Removal</text>
+  <text x="600" y="415" class="service-text">• Commercial Pest Management</text>
+  
+  <!-- Location -->
+  <text x="600" y="480" class="contact-label">MELBOURNE &amp; SURROUNDING AREAS</text>
+  
+  <!-- Orange accent circle -->
+  <circle cx="980" cy="530" r="40" fill="url(#accentGradient)" opacity="0.3"/>
+  <circle cx="950" cy="70" r="25" fill="#60A5FA" opacity="0.2"/>
+</svg>
